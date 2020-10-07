@@ -361,7 +361,6 @@ extension DefaultVideoClientController: VideoClientController {
     }
 
     // MARK: - Video selection
-
     public func startLocalVideo() throws {
         guard videoClientState != .uninitialized else {
             logger.fault(msg: "VideoClient is not initialized so returning without doing anything")
@@ -373,6 +372,18 @@ extension DefaultVideoClientController: VideoClientController {
         if VideoClient.currentDevice() == nil {
             setFrontCameraAsCurrentDevice()
         }
+        videoClient?.setSending(true)
+    }
+    
+    public func startLocalVideo(source: VideoSource) {
+        guard videoClientState != .uninitialized else {
+            logger.fault(msg: "VideoClient is not initialized so returning without doing anything")
+            return
+        }
+
+        logger.info(msg: "Starting local video")
+        videoClient?.chooseVideoSource(VideoSourceAdapter(source: source))
+
         videoClient?.setSending(true)
     }
 

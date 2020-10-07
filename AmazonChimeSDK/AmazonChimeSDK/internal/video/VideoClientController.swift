@@ -16,6 +16,7 @@ import Foundation
                joinToken: String)
     func stopAndDestroy()
     func startLocalVideo() throws
+    func startLocalVideo(source: VideoSource)
     func stopLocalVideo()
     func startRemoteVideo()
     func stopRemoteVideo()

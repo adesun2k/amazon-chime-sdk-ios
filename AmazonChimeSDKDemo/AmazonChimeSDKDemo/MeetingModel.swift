@@ -26,6 +26,7 @@ class MeetingModel: NSObject {
     let callKitOption: CallKitOption
     let meetingSessionConfig: MeetingSessionConfiguration
     lazy var currentMeetingSession = DefaultMeetingSession(configuration: meetingSessionConfig, logger: logger)
+    let source = DefaultCameraCaptureSource()
 
     // Utils
     let logger = ConsoleLogger(name: "MeetingModel")
@@ -249,6 +250,28 @@ class MeetingModel: NSObject {
         }
     }
 
+    private func setupVideoEnv() {
+        do {
+            source.start()
+            currentMeetingSession.audioVideo.startLocalVideo(source: source)
+        } catch PermissionError.videoPermissionError {
+            let videoPermission = AVCaptureDevice.authorizationStatus(for: .video)
+            if videoPermission == .denied {
+                logger.error(msg: "User did not grant video permission, it should redirect to Settings")
+                notify(msg: "You did not grant video permission, Please go to Settings and change it")
+            } else {
+                AVCaptureDevice.requestAccess(for: .video) { granted in
+                    if granted {
+                        self.setupVideoEnv()
+                    } else {
+                        self.logger.error(msg: "User did not grant video permission")
+                        self.notify(msg: "You did not grant video permission, Please go to Settings and change it")
+                    }
+                }
+            }
+        }
+    }
+
     private func startAudioVideoConnection(isCallKitEnabled: Bool) {
         do {
             setupAudioVideoFacadeObservers()
@@ -262,11 +285,8 @@ class MeetingModel: NSObject {
     private func startLocalVideo() {
         MeetingModule.shared().requestVideoPermission { success in
             if success {
-                do {
-                    try self.currentMeetingSession.audioVideo.startLocalVideo()
-                } catch {
-                    self.logger.error(msg: "Error starting local video: \(error.localizedDescription)")
-                }
+                self.source.start()
+                self.currentMeetingSession.audioVideo.startLocalVideo(source: self.source)
             }
         }
     }

@@ -81,6 +81,10 @@ import Foundation
     public func startLocalVideo() throws {
         try videoClientController.startLocalVideo()
     }
+    
+    public func startLocalVideo(source: VideoSource) {
+        videoClientController.startLocalVideo(source: source)
+    }
 
     public func stopLocalVideo() {
         videoClientController.stopLocalVideo()
