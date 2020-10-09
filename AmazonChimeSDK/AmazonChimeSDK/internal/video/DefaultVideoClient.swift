@@ -20,6 +20,6 @@ class DefaultVideoClient: VideoClient {
 
     override func videoLogCallBack(_ logLevel: video_client_loglevel_t, msg: String?) {
         guard let msg = msg else { return }
-        logger.info(msg: msg)
+        logger.error(msg: msg)
     }
 }
