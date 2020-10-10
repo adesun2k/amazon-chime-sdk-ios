@@ -10,6 +10,8 @@ import Foundation
 
 /// `VideoTile` is a tile that binds video render view to diplay the frame into the view.
 @objc public protocol VideoSource {
+    var videoContentHint: VideoContentHint {get set}
+
     /// Subscribe to Video Source events with an `VideoSourceObserver`.
     ///
     /// - Parameter observer: The observer to subscribe to events with

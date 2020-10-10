@@ -209,7 +209,12 @@ class DefaultVideoClientController: NSObject {
 // MARK: - VideoClientDelegate
 
 extension DefaultVideoClientController: VideoClientDelegate {
-    func didReceive(_ buffer: CVPixelBuffer?, profileId: String?, pauseState: PauseState, videoId: UInt32) {
+    func didReceive(_ buffer: CVPixelBuffer?,
+                    profileId: String?,
+                    pauseState: PauseState,
+                    videoId: UInt32,
+                    timestampNs: Int64,
+                    rotation: AmazonChimeSDKMedia.VideoRotation) {
         // Translate the Obj-C enum to the public Swift enum
         var translatedPauseState: VideoPauseState
         switch pauseState {
@@ -223,8 +228,15 @@ extension DefaultVideoClientController: VideoClientDelegate {
             translatedPauseState = .unpaused
         }
 
+        var frame: VideoFrame?
+        if let buffer = buffer {
+            let pixelBuffer = VideoFramePixelBuffer(pixelBuffer: buffer)
+            frame = VideoFrame(timestampNs: timestampNs,
+                               rotation: VideoRotation(internalValue: rotation),
+                               buffer: pixelBuffer)
+        }
         ObserverUtils.forEach(observers: videoTileControllerObservers) { (observer: VideoTileController) in
-            observer.onReceiveFrame(frame: buffer,
+            observer.onReceiveFrame(frame: frame,
                                     videoId: Int(videoId),
                                     attendeeId: profileId,
                                     pauseState: translatedPauseState)
@@ -374,7 +386,7 @@ extension DefaultVideoClientController: VideoClientController {
         }
         videoClient?.setSending(true)
     }
-    
+
     public func startLocalVideo(source: VideoSource) {
         guard videoClientState != .uninitialized else {
             logger.fault(msg: "VideoClient is not initialized so returning without doing anything")

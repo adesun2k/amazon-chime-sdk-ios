@@ -35,7 +35,7 @@ import Foundation
 
     /// Enable self video to start streaming
     func startLocalVideo(source: VideoSource)
-    
+
     /// Disable self video streaming
     func stopLocalVideo()
 

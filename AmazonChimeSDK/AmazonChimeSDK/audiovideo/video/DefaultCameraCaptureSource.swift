@@ -9,15 +9,15 @@
 import AVFoundation
 import Foundation
 
-@objcMembers public class DefaultCameraCaptureSource: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate, VideoSource {
+@objcMembers public class DefaultCameraCaptureSource: NSObject, VideoSource {
+    public var videoContentHint: VideoContentHint = .none
+
     private let sinks = ConcurrentMutableSet()
 
     private var session = AVCaptureSession()
     private var device: AVCaptureDevice?
     private var input: AVCaptureDeviceInput?
     private var output = AVCaptureVideoDataOutput()
-
-    private let kNanosecondsPerSecond = 1000000000
 
     public func addVideoSink(sink: VideoSink) {
         sinks.add(sink)
@@ -49,18 +49,32 @@ import Foundation
         session.commitConfiguration()
         session.startRunning()
     }
+}
 
+extension DefaultCameraCaptureSource: AVCaptureVideoDataOutputSampleBufferDelegate {
     public func captureOutput(_ output: AVCaptureOutput,
                               didOutput sampleBuffer: CMSampleBuffer,
                               from connection: AVCaptureConnection) {
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
         let buffer = VideoFramePixelBuffer(pixelBuffer: pixelBuffer)
-        let timestamp = CMTimeGetSeconds(CMSampleBufferGetOutputPresentationTimeStamp(sampleBuffer))
-            * Double(kNanosecondsPerSecond)
-        let frame = VideoFrame(width: buffer.width(),
-                               height: buffer.height(),
-                               timestamp: Int(timestamp),
-                               rotation: 0,
+        let timestampNs = CMTimeGetSeconds(CMSampleBufferGetOutputPresentationTimeStamp(sampleBuffer))
+            * Double(Constants.nanosecondsPerSecond)
+        var rotation: VideoRotation
+        switch connection.videoOrientation {
+        case .portrait:
+            rotation = .rotation0
+        case .portraitUpsideDown:
+            rotation = .rotation180
+        case .landscapeLeft:
+            rotation = .rotation90
+        case .landscapeRight:
+            rotation = .rotation270
+        @unknown default:
+            rotation = .rotation0
+        }
+
+        let frame = VideoFrame(timestampNs: Int64(timestampNs),
+                               rotation: rotation,
                                buffer: buffer)
         ObserverUtils.forEach(observers: self.sinks) { (sink: VideoSink) in
             sink.onVideoFrameReceived(frame: frame)

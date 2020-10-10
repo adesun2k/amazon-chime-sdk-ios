@@ -27,7 +27,7 @@ import VideoToolbox
     /// to the tile using `bind`
     ///
     /// - Parameter frame: a frame of video
-    func renderFrame(frame: CVPixelBuffer?)
+    func renderFrame(frame: VideoFrame?)
 
     /// Unbinds the `videoRenderView` from tile.
     func unbind()

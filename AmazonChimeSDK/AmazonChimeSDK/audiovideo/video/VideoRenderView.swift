@@ -9,9 +9,6 @@
 import Foundation
 import VideoToolbox
 
-/// `VideoRenderView` renders frame that comes from `VideoTile`.
-@objc public protocol VideoRenderView {
-    /// Render given frame to UI
-    /// - Parameter frame: a frame of video
-    func renderFrame(frame: CVPixelBuffer?)
+/// `VideoRenderView` is the type of VideoSink used by the `VideoTileController`
+@objc public protocol VideoRenderView: VideoSink {
 }

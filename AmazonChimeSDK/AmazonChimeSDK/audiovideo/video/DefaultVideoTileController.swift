@@ -21,7 +21,7 @@ import UIKit
         self.logger = logger
     }
 
-    public func onReceiveFrame(frame: CVPixelBuffer?,
+    public func onReceiveFrame(frame: VideoFrame?,
                                videoId: Int,
                                attendeeId: String?,
                                pauseState: VideoPauseState) {
@@ -29,8 +29,8 @@ import UIKit
         var videoStreamContentHeight = 0
 
         if let frame = frame {
-            videoStreamContentWidth = CVPixelBufferGetWidth(frame)
-            videoStreamContentHeight = CVPixelBufferGetHeight(frame)
+            videoStreamContentWidth = frame.width
+            videoStreamContentHeight = frame.height
         }
 
         if let videoTile = videoTileMap[videoId] {

@@ -28,8 +28,6 @@
 		5ACB3E71249AEE6800FC6E1B /* AmazonChimeSDKMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5ACB3E6F249AEE6800FC6E1B /* AmazonChimeSDKMedia.framework */; };
 		5ACB3E72249AEE6800FC6E1B /* AmazonChimeSDKMedia.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5ACB3E6F249AEE6800FC6E1B /* AmazonChimeSDKMedia.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		5AE38AE02428747100B234EC /* AmazonChimeSDK.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5AE38AD7242873FD00B234EC /* AmazonChimeSDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		6AA9F967252243D600EB0644 /* AmazonChimeSDKMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6AA9F966252243C900EB0644 /* AmazonChimeSDKMedia.framework */; };
-		6AA9F968252243D600EB0644 /* AmazonChimeSDKMedia.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6AA9F966252243C900EB0644 /* AmazonChimeSDKMedia.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B4FCD85224B9330A00064C9E /* ChatMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4FCD85124B9330A00064C9E /* ChatMessageCell.swift */; };
 		B4FCD85524B9364900064C9E /* ChatModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4FCD85424B9364900064C9E /* ChatModel.swift */; };
 		B4FCD85724B947FC00064C9E /* TimestampConversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4FCD85624B947FB00064C9E /* TimestampConversion.swift */; };
@@ -43,6 +41,8 @@
 		C4923BF024B8DF1100EE866B /* ScreenShareModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4923BEF24B8DF1100EE866B /* ScreenShareModel.swift */; };
 		C4923C0624BE71D800EE866B /* MeetingModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4923C0524BE71D800EE866B /* MeetingModule.swift */; };
 		C4923C0A24BF62FE00EE866B /* MeetingPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4923C0924BF62FE00EE866B /* MeetingPresenter.swift */; };
+		C4A6F9CA252E8F7300455418 /* AmazonChimeSDKMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6AA9F966252243C900EB0644 /* AmazonChimeSDKMedia.framework */; };
+		C4A6F9CB252E8F7300455418 /* AmazonChimeSDKMedia.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6AA9F966252243C900EB0644 /* AmazonChimeSDKMedia.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		C4D8E1B824A412B6005D9CF7 /* VideoModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4D8E1B724A412B6005D9CF7 /* VideoModel.swift */; };
 		F82D50DA23FC9C6C00D8F18C /* AppConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F82D50D923FC9C6C00D8F18C /* AppConfiguration.swift */; };
 		F8AC96232408840D0072EB04 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F8AC96222408840D0072EB04 /* AppDelegate.m */; };
@@ -104,7 +104,7 @@
 			dstSubfolderSpec = 10;
 			files = (
 				5AE38AE02428747100B234EC /* AmazonChimeSDK.framework in Embed Frameworks */,
-				6AA9F968252243D600EB0644 /* AmazonChimeSDKMedia.framework in Embed Frameworks */,
+				C4A6F9CB252E8F7300455418 /* AmazonChimeSDKMedia.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -165,7 +165,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				00F0F6E12411B8E20013DA25 /* Toast in Frameworks */,
-				6AA9F967252243D600EB0644 /* AmazonChimeSDKMedia.framework in Frameworks */,
+				C4A6F9CA252E8F7300455418 /* AmazonChimeSDKMedia.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

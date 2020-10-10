@@ -17,18 +17,18 @@ import Foundation
     public let height: Int
 
     /// Width of video stream content
-    public let timestamp: Int
+    public let timestampNs: Int64
 
     /// Width of video stream content
-    public let rotation: Int
+    public let rotation: VideoRotation
 
     /// Height of video stream content
     public let buffer: VideoFrameBuffer
 
-    public init(width: Int, height: Int, timestamp: Int, rotation: Int, buffer: VideoFrameBuffer) {
-        self.width = width
-        self.height = height
-        self.timestamp = timestamp
+    public init(timestampNs: Int64, rotation: VideoRotation, buffer: VideoFrameBuffer) {
+        self.width = buffer.width()
+        self.height = buffer.height()
+        self.timestampNs = timestampNs
         self.rotation = rotation
         self.buffer = buffer
     }

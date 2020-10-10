@@ -17,5 +17,5 @@ import CoreMedia
     ///
     /// - Parameters:
     ///   - tileState: video tile state associated with this attendee
-    func onVideoFrameReceived(frame: VideoFrame)
+    func onVideoFrameReceived(frame: VideoFrame?)
 }

@@ -87,7 +87,7 @@ class MeetingViewController: UIViewController {
             layout.scrollDirection = .vertical
         }
     }
-    
+
     private func registerForKeyboardNotifications() {
         //Adding notifies on keyboard appearing
         NotificationCenter
@@ -112,7 +112,6 @@ class MeetingViewController: UIViewController {
             .default
             .removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
     }
-
 
     private func configure(meetingModel: MeetingModel) {
         meetingModel.activeModeDidSetHandler = { [weak self] activeMode in

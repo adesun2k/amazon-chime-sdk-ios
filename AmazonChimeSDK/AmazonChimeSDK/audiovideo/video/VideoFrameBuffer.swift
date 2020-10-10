@@ -14,7 +14,7 @@ import Foundation
     ///
     /// - Parameter observer: The observer to subscribe to events with
     func width() -> Int
-    
+
     /// Subscribe to Video Source events with an `VideoSourceObserver`.
     ///
     /// - Parameter observer: The observer to subscribe to events with

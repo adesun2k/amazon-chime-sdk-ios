@@ -59,8 +59,16 @@ import VideoToolbox
         imageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
     }
 
+    public func onVideoFrameReceived(frame: VideoFrame?) {
+        if let frame = frame, let videoFramePixelBuffer = frame.buffer as? VideoFramePixelBuffer {
+            renderFrame(frame: videoFramePixelBuffer.pixelBuffer)
+        } else {
+            renderFrame(frame: nil)
+        }
+    }
+
     // Expects CVPixelBuffer as frame type
-    public func renderFrame(frame: CVPixelBuffer?) {
+    private func renderFrame(frame: CVPixelBuffer?) {
         if frame == nil {
             isHidden = true
             imageView.image = nil
