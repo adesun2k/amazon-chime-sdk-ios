@@ -33,6 +33,8 @@ class DefaultVideoClientController: NSObject {
     private let tokenHeader = "X-Chime-Auth-Token"
     private let tokenKey = "_aws_wt_session"
     private let turnRequestHttpMethod = "POST"
+    private let internalCaptureSource = DefaultCameraCaptureSource()
+    private var isUsingInternalCaptureSource = true
 
     init(videoClient: VideoClient,
          clientMetricsCollector: ClientMetricsCollector,
@@ -374,20 +376,22 @@ extension DefaultVideoClientController: VideoClientController {
 
     // MARK: - Video selection
     public func startLocalVideo() throws {
-        guard videoClientState != .uninitialized else {
-            logger.fault(msg: "VideoClient is not initialized so returning without doing anything")
-            return
-        }
         try checkVideoPermission()
+        chooseVideoSource(source: internalCaptureSource)
 
-        logger.info(msg: "Starting local video")
-        if VideoClient.currentDevice() == nil {
-            setFrontCameraAsCurrentDevice()
-        }
-        videoClient?.setSending(true)
+        logger.info(msg: "Starting local video with internal source")
+        internalCaptureSource.start()
+        isUsingInternalCaptureSource = true
     }
 
     public func startLocalVideo(source: VideoSource) {
+        chooseVideoSource(source: source)
+
+        logger.info(msg: "Starting local video with custom source")
+        isUsingInternalCaptureSource = false
+    }
+
+    private func chooseVideoSource(source: VideoSource) {
         guard videoClientState != .uninitialized else {
             logger.fault(msg: "VideoClient is not initialized so returning without doing anything")
             return
@@ -395,7 +399,6 @@ extension DefaultVideoClientController: VideoClientController {
 
         logger.info(msg: "Starting local video")
         videoClient?.chooseVideoSource(VideoSourceAdapter(source: source))
-
         videoClient?.setSending(true)
     }
 
@@ -406,6 +409,9 @@ extension DefaultVideoClientController: VideoClientController {
         }
         logger.info(msg: "Stopping local video")
         videoClient?.setSending(false)
+        if isUsingInternalCaptureSource {
+            internalCaptureSource.stop()
+        }
     }
 
     public func startRemoteVideo() {
@@ -427,22 +433,16 @@ extension DefaultVideoClientController: VideoClientController {
     }
 
     public func switchCamera() {
-        guard videoClientState != .uninitialized else {
-            logger.error(msg: "Cannot switch camera because videoClientState=\(videoClientState)")
-            return
-        }
-
-        logger.info(msg: "Swiching between cameras")
-
-        if let devices = (VideoClient.devices() as? [VideoDevice]) {
-            if let nextDevice = devices.first(where: { $0.identifier != VideoClient.currentDevice()?.identifier }) {
-                videoClient?.setCurrentDevice(nextDevice)
-            }
+        if isUsingInternalCaptureSource {
+            internalCaptureSource.switchCamera()
         }
     }
 
-    public func getCurrentDevice() -> VideoDevice? {
-        return VideoClient.currentDevice()
+    public func getCurrentDevice() -> MediaDevice? {
+        if isUsingInternalCaptureSource {
+            return internalCaptureSource.activeDevice()
+        }
+        return nil
     }
 
     public func getConfiguration() -> MeetingSessionConfiguration {

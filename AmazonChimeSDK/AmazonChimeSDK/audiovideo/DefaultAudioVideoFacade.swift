@@ -145,6 +145,10 @@ import Foundation
         return deviceController.getActiveCamera()
     }
 
+    public func listVideoDevices() -> [MediaDevice] {
+        return deviceController.listVideoDevices()
+    }
+
     // MARK: VideoTileController
 
     public func bindVideoView(videoView: VideoRenderView, tileId: Int) {

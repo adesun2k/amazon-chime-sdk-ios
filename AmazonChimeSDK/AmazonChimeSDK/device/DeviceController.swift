@@ -40,4 +40,8 @@ import Foundation
     /// Get currently used audio device
     /// - Returns: a media device or nil if no device is present
     func getActiveAudioDevice() -> MediaDevice?
+
+    /// List available video devices
+    /// - Returns: list of available video devices
+    func listVideoDevices() -> [MediaDevice]
 }

@@ -21,7 +21,7 @@ import Foundation
     func startRemoteVideo()
     func stopRemoteVideo()
     func switchCamera()
-    func getCurrentDevice() -> VideoDevice?
+    func getCurrentDevice() -> MediaDevice?
     func getConfiguration() -> MeetingSessionConfiguration
     func subscribeToVideoClientStateChange(observer: AudioVideoObserver)
     func unsubscribeFromVideoClientStateChange(observer: AudioVideoObserver)

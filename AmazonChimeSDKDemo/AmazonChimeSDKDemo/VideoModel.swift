@@ -22,6 +22,7 @@ class VideoModel: NSObject {
 
     var videoUpdatedHandler: (() -> Void)?
     var localVideoUpdatedHandler: (() -> Void)?
+    let customSource = DefaultCameraCaptureSource()
 
     init(audioVideoFacade: AudioVideoFacade) {
         self.audioVideoFacade = audioVideoFacade
@@ -165,7 +166,7 @@ class VideoModel: NSObject {
 extension VideoModel: VideoTileCellDelegate {
     func onTileButtonClicked(tag: Int, selected: Bool) {
         if tag == 0 {
-            audioVideoFacade.switchCamera()
+            customSource.switchCamera()
         } else {
             if let tileState = getVideoTileState(for: IndexPath(item: tag, section: 0)), !tileState.isLocalTile {
                 if selected {

@@ -34,6 +34,21 @@ import Foundation
         return MediaDevice(label: device?.name ?? "unknown", videoDevice: device)
     }
 
+    static func listVideoDevices() -> [MediaDevice] {
+        let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera],
+                                                                mediaType: .video,
+                                                                position: .unspecified)
+        return discoverySession.devices.map { device in
+            var position = MediaDeviceType.other
+            if device.position == .front {
+                position = .videoFrontCamera
+            } else if device.position == .back {
+                position = .videoBackCamera
+            }
+            return MediaDevice(label: device.localizedName, type: position)
+        }
+    }
+
     public init(label: String, type: MediaDeviceType) {
         self.label = label
         self.type = type
