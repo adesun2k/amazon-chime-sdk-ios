@@ -9,7 +9,7 @@
 import Foundation
 import CoreVideo
 
-@objcMembers public class VideoFramePixelBuffer: VideoFrameBuffer {
+@objcMembers public class VideoFramePixelBuffer: NSObject, VideoFrameBuffer {
     public func width() -> Int {
         return CVPixelBufferGetWidth(pixelBuffer)
     }

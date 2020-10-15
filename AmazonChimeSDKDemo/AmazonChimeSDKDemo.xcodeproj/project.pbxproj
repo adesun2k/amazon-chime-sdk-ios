@@ -43,6 +43,8 @@
 		C4923C0A24BF62FE00EE866B /* MeetingPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4923C0924BF62FE00EE866B /* MeetingPresenter.swift */; };
 		C4A6F9CA252E8F7300455418 /* AmazonChimeSDKMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6AA9F966252243C900EB0644 /* AmazonChimeSDKMedia.framework */; };
 		C4A6F9CB252E8F7300455418 /* AmazonChimeSDKMedia.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6AA9F966252243C900EB0644 /* AmazonChimeSDKMedia.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		C4C540602538B86100427A84 /* DeviceSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4C5405F2538B86000427A84 /* DeviceSelectionViewController.swift */; };
+		C4C540642538B87600427A84 /* DeviceSelectionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4C540632538B87500427A84 /* DeviceSelectionModel.swift */; };
 		C4D8E1B824A412B6005D9CF7 /* VideoModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4D8E1B724A412B6005D9CF7 /* VideoModel.swift */; };
 		F82D50DA23FC9C6C00D8F18C /* AppConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F82D50D923FC9C6C00D8F18C /* AppConfiguration.swift */; };
 		F8AC96232408840D0072EB04 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = F8AC96222408840D0072EB04 /* AppDelegate.m */; };
@@ -145,6 +147,8 @@
 		C4923BEF24B8DF1100EE866B /* ScreenShareModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenShareModel.swift; sourceTree = "<group>"; };
 		C4923C0524BE71D800EE866B /* MeetingModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingModule.swift; sourceTree = "<group>"; };
 		C4923C0924BF62FE00EE866B /* MeetingPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingPresenter.swift; sourceTree = "<group>"; };
+		C4C5405F2538B86000427A84 /* DeviceSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceSelectionViewController.swift; sourceTree = "<group>"; };
+		C4C540632538B87500427A84 /* DeviceSelectionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceSelectionModel.swift; sourceTree = "<group>"; };
 		C4D8E1B724A412B6005D9CF7 /* VideoModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoModel.swift; sourceTree = "<group>"; };
 		F82D50D923FC9C6C00D8F18C /* AppConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfiguration.swift; sourceTree = "<group>"; };
 		F8AC961F2408840D0072EB04 /* AmazonChimeSDKDemoObjC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AmazonChimeSDKDemoObjC.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -225,6 +229,8 @@
 				C4923C0524BE71D800EE866B /* MeetingModule.swift */,
 				C4923C0924BF62FE00EE866B /* MeetingPresenter.swift */,
 				5A1582BD23C40C9B0099F8FA /* JoiningViewController.swift */,
+				C4C5405F2538B86000427A84 /* DeviceSelectionViewController.swift */,
+				C4C540632538B87500427A84 /* DeviceSelectionModel.swift */,
 				00F372E923D9196E008F7CA7 /* MeetingViewController.swift */,
 				C4923BEC24B8CB1B00EE866B /* MeetingModel.swift */,
 				C4781FD524ABC45800300604 /* CallKitManager.swift */,
@@ -475,6 +481,7 @@
 				003B58AF23E23E9D002493AB /* JoinMeetingResponse.swift in Sources */,
 				C4923C0624BE71D800EE866B /* MeetingModule.swift in Sources */,
 				00F372EA23D9196E008F7CA7 /* MeetingViewController.swift in Sources */,
+				C4C540642538B87600427A84 /* DeviceSelectionModel.swift in Sources */,
 				C4923BED24B8CB1B00EE866B /* MeetingModel.swift in Sources */,
 				00F372EE23DA2BFD008F7CA7 /* RosterAttendee.swift in Sources */,
 				B4FCD85724B947FC00064C9E /* TimestampConversion.swift in Sources */,
@@ -484,6 +491,7 @@
 				B4FCD85224B9330A00064C9E /* ChatMessageCell.swift in Sources */,
 				B4FCD85524B9364900064C9E /* ChatModel.swift in Sources */,
 				5A16BE7A24006A2A00ADAE26 /* VideoTileCell.swift in Sources */,
+				C4C540602538B86100427A84 /* DeviceSelectionViewController.swift in Sources */,
 				C4632EBE24A57BF8009F8AF5 /* RosterModel.swift in Sources */,
 				5A1582BE23C40C9B0099F8FA /* JoiningViewController.swift in Sources */,
 				5A38BFB724A131B3005B2AA7 /* MetricsModel.swift in Sources */,

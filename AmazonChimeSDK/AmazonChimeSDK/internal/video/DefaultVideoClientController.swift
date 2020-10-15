@@ -440,7 +440,7 @@ extension DefaultVideoClientController: VideoClientController {
 
     public func getCurrentDevice() -> MediaDevice? {
         if isUsingInternalCaptureSource {
-            return internalCaptureSource.activeDevice()
+            return internalCaptureSource.device
         }
         return nil
     }

@@ -37,6 +37,7 @@ class MeetingModel: NSObject {
     let metricsModel = MetricsModel()
     let screenShareModel = ScreenShareModel()
     let chatModel = ChatModel()
+    lazy var deviceSelectionModel = DeviceSelectionModel(deviceController: currentMeetingSession.audioVideo, cameraCaptureSource: videoModel.customSource)
     let uuid = UUID()
     var call: Call?
 
@@ -99,7 +100,7 @@ class MeetingModel: NSObject {
         if let internalCamera = currentMeetingSession.audioVideo.getActiveCamera() {
             return internalCamera.type == .videoFrontCamera
         }
-        if let activeCamera = videoModel.customSource.activeDevice() {
+        if let activeCamera = videoModel.customSource.device {
             return activeCamera.type == .videoFrontCamera
         }
         return false
@@ -237,20 +238,7 @@ class MeetingModel: NSObject {
     }
 
     private func configureAudioSession() {
-        let audioSession = AVAudioSession.sharedInstance()
-        do {
-            if audioSession.category != .playAndRecord {
-                try audioSession.setCategory(AVAudioSession.Category.playAndRecord,
-                                             options: AVAudioSession.CategoryOptions.allowBluetooth)
-                try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
-            }
-            if audioSession.mode != .voiceChat {
-                try audioSession.setMode(.voiceChat)
-            }
-        } catch {
-            logger.error(msg: "Error configuring AVAudioSession: \(error.localizedDescription)")
-            endMeeting()
-        }
+        MeetingModule.shared().configureAudioSession()
     }
 
     private func startAudioVideoConnection(isCallKitEnabled: Bool) {
@@ -266,6 +254,7 @@ class MeetingModel: NSObject {
     private func startLocalVideo() {
         MeetingModule.shared().requestVideoPermission { success in
             if success {
+                self.videoModel.customSource.device = self.deviceSelectionModel.selectedVideoDevice
                 self.videoModel.customSource.start()
                 self.currentMeetingSession.audioVideo.startLocalVideo(source: self.videoModel.customSource)
             }
@@ -354,6 +343,11 @@ extension MeetingModel: AudioVideoObserver {
         if !reconnecting {
             call?.isConnectedHandler?()
         }
+
+        // This selection has to be here because if there are bluetooth headset connected,
+        // selecting non-bluetooth device before audioVideo.start() will get route overwritten by bluetooth
+        // after audio session starts
+        chooseAudioDevice(deviceSelectionModel.selectedAudioDevice)
     }
 
     func audioSessionDidDrop() {

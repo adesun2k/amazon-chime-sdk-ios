@@ -14,13 +14,31 @@ import UIKit
     public var videoContentHint: VideoContentHint = .none
     public private(set) var isUsingFrontCamera = false
 
+    private let deviceType = AVCaptureDevice.DeviceType.builtInWideAngleCamera
     private let sinks = ConcurrentMutableSet()
     private let output = AVCaptureVideoDataOutput()
     private let captureQueue = DispatchQueue(label: "captureQueue")
 
     private var session = AVCaptureSession()
-    private var device: AVCaptureDevice?
-    private var deviceType = AVCaptureDevice.DeviceType.builtInWideAngleCamera
+    private var captureDevice: AVCaptureDevice? {
+        return AVCaptureDevice.default(deviceType,
+                                       for: .video,
+                                       position: isUsingFrontCamera ? .front : .back)
+    }
+
+    public var device: MediaDevice? {
+        get {
+            guard session.isRunning, let captureDevice = captureDevice  else {
+                return nil
+            }
+            return MediaDevice(label: captureDevice.localizedName, type: isUsingFrontCamera ? .videoFrontCamera : .videoBackCamera)
+        }
+        set(newDevice) {
+            if let newDevice = newDevice {
+                isUsingFrontCamera = newDevice.type == .videoFrontCamera
+            }
+        }
+    }
 
     public func addVideoSink(sink: VideoSink) {
         sinks.add(sink)
@@ -32,16 +50,14 @@ import UIKit
 
     public func start() {
         session = AVCaptureSession()
-        device = AVCaptureDevice.default(deviceType,
-                                         for: .video,
-                                         position: isUsingFrontCamera ? .front : .back)
-        guard let device = device else {
+
+        guard let captureDevice = captureDevice else {
             return
         }
 
         session.beginConfiguration()
 
-        guard let deviceInput = try? AVCaptureDeviceInput(device: device),
+        guard let deviceInput = try? AVCaptureDeviceInput(device: captureDevice),
             session.canAddInput(deviceInput) else {
 
             session.commitConfiguration()
@@ -62,13 +78,6 @@ import UIKit
         session.stopRunning()
     }
 
-    public func activeDevice() -> MediaDevice? {
-        guard session.isRunning, let device = device  else {
-            return nil
-        }
-        return MediaDevice(label: device.localizedName, type: isUsingFrontCamera ? .videoFrontCamera : .videoBackCamera)
-    }
-
     public func switchCamera() {
         isUsingFrontCamera = !isUsingFrontCamera
         stop()
@@ -77,15 +86,15 @@ import UIKit
 
     // TODO: not working, torch does not stay on
     public func toggleTorch(on: Bool) {
-        if let device = device, device.hasTorch, device.isTorchAvailable {
-            try? device.lockForConfiguration()
+        if let captureDevice = captureDevice, captureDevice.hasTorch, captureDevice.isTorchAvailable {
+            try? captureDevice.lockForConfiguration()
             if on {
-                device.torchMode = .on
-                try? device.setTorchModeOn(level: 1)
+                captureDevice.torchMode = .on
+                try? captureDevice.setTorchModeOn(level: 1)
             } else {
-                device.torchMode = .off
+                captureDevice.torchMode = .off
             }
-            device.unlockForConfiguration()
+            captureDevice.unlockForConfiguration()
         }
     }
 }
