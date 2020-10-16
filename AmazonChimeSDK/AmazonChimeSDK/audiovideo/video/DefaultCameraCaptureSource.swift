@@ -20,6 +20,18 @@ import UIKit
     private let captureQueue = DispatchQueue(label: "captureQueue")
 
     private var session = AVCaptureSession()
+    private var orientation = UIDeviceOrientation.portrait
+
+    public override init() {
+        super.init()
+
+        let notificationCenter = NotificationCenter.default
+        notificationCenter.addObserver(self,
+                                       selector: #selector(deviceOrientationDidChange),
+                                       name: UIDevice.orientationDidChangeNotification,
+                                       object: nil)
+    }
+
     private var captureDevice: AVCaptureDevice? {
         return AVCaptureDevice.default(deviceType,
                                        for: .video,
@@ -28,7 +40,7 @@ import UIKit
 
     public var device: MediaDevice? {
         get {
-            guard session.isRunning, let captureDevice = captureDevice  else {
+            guard session.isRunning, let captureDevice = captureDevice else {
                 return nil
             }
             return MediaDevice(label: captureDevice.localizedName, type: isUsingFrontCamera ? .videoFrontCamera : .videoBackCamera)
@@ -59,7 +71,6 @@ import UIKit
 
         guard let deviceInput = try? AVCaptureDeviceInput(device: captureDevice),
             session.canAddInput(deviceInput) else {
-
             session.commitConfiguration()
             return
         }
@@ -71,6 +82,9 @@ import UIKit
             session.addOutput(output)
         }
         session.commitConfiguration()
+
+        updateOrientation()
+
         session.startRunning()
     }
 
@@ -97,44 +111,57 @@ import UIKit
             captureDevice.unlockForConfiguration()
         }
     }
+
+    private func updateOrientation() {
+        guard let connection = output.connection(with: AVMediaType.video) else {
+            return
+        }
+        orientation = UIDevice.current.orientation
+
+        switch orientation {
+        case .portrait:
+            connection.videoOrientation = .portrait
+        case .landscapeLeft:
+            connection.videoOrientation = .landscapeRight
+        case .portraitUpsideDown:
+            connection.videoOrientation = .portraitUpsideDown
+        case .landscapeRight:
+            connection.videoOrientation = .landscapeLeft
+        default:
+            connection.videoOrientation = .portrait
+        }
+    }
+    
+    private func updateDeviceCaptureFormat() {
+        
+    }
+
+    @objc private func deviceOrientationDidChange(notification: NSNotification) {
+        captureQueue.async {
+            self.updateOrientation()
+        }
+    }
 }
 
 extension DefaultCameraCaptureSource: AVCaptureVideoDataOutputSampleBufferDelegate {
     public func captureOutput(_ output: AVCaptureOutput,
                               didOutput sampleBuffer: CMSampleBuffer,
                               from connection: AVCaptureConnection) {
+        if CMSampleBufferGetNumSamples(sampleBuffer) != 1 || !CMSampleBufferIsValid(sampleBuffer) ||
+            !CMSampleBufferDataIsReady(sampleBuffer) {
+          return
+        }
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
         let buffer = VideoFramePixelBuffer(pixelBuffer: pixelBuffer)
         let timestampNs = CMTimeGetSeconds(CMSampleBufferGetOutputPresentationTimeStamp(sampleBuffer))
             * Double(Constants.nanosecondsPerSecond)
-        var rotation: VideoRotation
-
-        let orientation: UIDeviceOrientation = UIDevice.current.orientation
-        print(orientation.rawValue)
-
-        switch orientation {
-        case .portrait:
-            rotation = .rotation0
-            connection.videoOrientation = .portrait
-        case .landscapeLeft:
-            rotation = .rotation90
-            connection.videoOrientation = .landscapeLeft
-        case .portraitUpsideDown:
-            rotation = .rotation180
-            connection.videoOrientation = .portraitUpsideDown
-        case .landscapeRight:
-            rotation = .rotation270
-            connection.videoOrientation = .landscapeRight
-        default:
-            rotation = .rotation0
-            connection.videoOrientation = .portrait
-        }
 
         let frame = VideoFrame(timestampNs: Int64(timestampNs),
-                               rotation: rotation,
+                               rotation: .rotation0,
                                buffer: buffer)
-        ObserverUtils.forEach(observers: sinks) { (sink: VideoSink) in
+       sinks.forEach({item in
+           guard let sink = item as? VideoSink else { return }
             sink.onVideoFrameReceived(frame: frame)
-        }
+        })
     }
 }

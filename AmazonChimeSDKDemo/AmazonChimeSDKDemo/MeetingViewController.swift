@@ -18,6 +18,7 @@ class MeetingViewController: UIViewController {
     @IBOutlet var controlView: UIView!
     @IBOutlet var cameraButton: UIButton!
     @IBOutlet var deviceButton: UIButton!
+    @IBOutlet var additionalOptionsButton: UIButton!
     @IBOutlet var endButton: UIButton!
     @IBOutlet var muteButton: UIButton!
     @IBOutlet var resumeCallKitMeetingButton: UIButton!
@@ -166,7 +167,7 @@ class MeetingViewController: UIViewController {
         titleLabel.accessibilityLabel = "Meeting ID \(meetingModel?.meetingId ?? "")"
 
         // Buttons
-        let buttonStack = [muteButton, deviceButton, cameraButton, endButton, sendMessageButton]
+        let buttonStack = [muteButton, deviceButton, cameraButton, additionalOptionsButton, endButton, sendMessageButton]
         for button in buttonStack {
             let normalButtonImage = button?.image(for: .normal)?.withRenderingMode(.alwaysTemplate)
             let selectedButtonImage = button?.image(for: .selected)?.withRenderingMode(.alwaysTemplate)
@@ -315,6 +316,35 @@ class MeetingViewController: UIViewController {
         meetingModel?.isLocalVideoActive = cameraButton.isSelected
     }
 
+    @IBAction func additionalOptionsButtonClicked(_: UIButton) {
+        let optionMenu = UIAlertController(title: nil, message: "Additional Options", preferredStyle: .actionSheet)
+
+        let torchAction = UIAlertAction(title: "Toggle torch on current camera",
+                                         style: .default,
+                                         handler: {_ in self.toggleTorch() })
+        optionMenu.addAction(torchAction)
+
+        let gpuFilterAction = UIAlertAction(title: "Toggle demo video filter (GPU)",
+                                         style: .default,
+                                         handler: {_ in self.toggleGpuFilter() })
+        optionMenu.addAction(gpuFilterAction)
+
+        let cpuFilterAction = UIAlertAction(title: "Toggle demo video filter (CPU)",
+                                         style: .default,
+                                         handler: {_ in self.toggleCpuFilter() })
+        optionMenu.addAction(cpuFilterAction)
+
+        let customSourceAction = UIAlertAction(title: "Toggle demo usage of custom video source API",
+                                         style: .default,
+                                         handler: {_ in self.toggleCustomCameraSource() })
+        optionMenu.addAction(customSourceAction)
+
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
+        optionMenu.addAction(cancelAction)
+
+        present(optionMenu, animated: true, completion: nil)
+    }
+
     @IBAction func leaveButtonClicked(_: UIButton) {
         meetingModel?.endMeeting()
         deregisterFromKeyboardNotifications()
@@ -368,6 +398,22 @@ class MeetingViewController: UIViewController {
 
     @objc private func keyboardHideHandler(notification: NSNotification) {
         self.inputBoxBottomConstrain.constant = 0
+    }
+
+    @objc private func toggleTorch() {
+        logger.error(msg: "Toggling torch")
+    }
+    
+    @objc private func toggleGpuFilter() {
+        logger.error(msg: "Toggling GPU filter")
+    }
+    
+    @objc private func toggleCpuFilter() {
+        logger.error(msg: "Toggling CPU filter")
+    }
+    
+    @objc private func toggleCustomCameraSource() {
+        logger.error(msg: "Toggling usage of custom camera source")
     }
 }
 

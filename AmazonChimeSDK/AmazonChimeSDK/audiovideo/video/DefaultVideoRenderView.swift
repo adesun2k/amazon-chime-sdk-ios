@@ -60,22 +60,24 @@ import VideoToolbox
     }
 
     public func onVideoFrameReceived(frame: VideoFrame?) {
-        if let frame = frame, let videoFramePixelBuffer = frame.buffer as? VideoFramePixelBuffer {
-            renderFrame(frame: videoFramePixelBuffer.pixelBuffer)
+        if Thread.isMainThread {
+            render(frame: frame)
         } else {
-            renderFrame(frame: nil)
+            DispatchQueue.main.async {
+                self.render(frame: frame)
+            }
         }
     }
 
-    // Expects CVPixelBuffer as frame type
-    private func renderFrame(frame: CVPixelBuffer?) {
-        if frame == nil {
+    private func render(frame: VideoFrame?) {
+        let buffer = (frame?.buffer as? VideoFramePixelBuffer)?.pixelBuffer
+        if buffer == nil {
             isHidden = true
             imageView.image = nil
-        } else if let frame = frame {
+        } else if let buffer = buffer {
             isHidden = false
             var cgImage: CGImage?
-            VTCreateCGImageFromCVPixelBuffer(frame, options: nil, imageOut: &cgImage)
+            VTCreateCGImageFromCVPixelBuffer(buffer, options: nil, imageOut: &cgImage)
             if cgImage == nil {
                 return
             }

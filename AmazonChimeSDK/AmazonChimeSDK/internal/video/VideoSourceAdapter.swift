@@ -28,11 +28,12 @@ class VideoSourceAdapter: NSObject, VideoSink, VideoSourceInternal {
         guard let frame = frame, let buffer: VideoFramePixelBuffer = frame.buffer as? VideoFramePixelBuffer else {
             return
         }
-        ObserverUtils.forEach(observers: sinks) { (sink: VideoSinkInternal) in
-            sink.didReceive(buffer.pixelBuffer,
+        sinks.forEach({item in
+            guard let sink = item as? VideoSinkInternal else { return }
+           sink.didReceive(buffer.pixelBuffer,
                             timestampNs: Int64(frame.timestampNs),
                             rotation: frame.rotation.toInternal)
-        }
+        })
     }
 
     func addVideoSink(_ sink: VideoSinkInternal?) {
