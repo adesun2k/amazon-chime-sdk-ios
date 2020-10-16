@@ -11,17 +11,23 @@ import CoreMedia
 import Foundation
 
 class VideoSourceAdapter: NSObject, VideoSink, VideoSourceInternal {
-    var contentHint: AmazonChimeSDKMedia.VideoContentHint
+    var contentHint = AmazonChimeSDKMedia.VideoContentHint.none
 
     private let sinks = ConcurrentMutableSet()
-    private let source: VideoSource
+    
+    private var currentSource: VideoSource?
+    var source: VideoSource? {
+        get { return currentSource }
+        set(newSource) {
+            currentSource?.removeVideoSink(sink: self)
+            newSource?.addVideoSink(sink: self)
+            currentSource = newSource
+            contentHint = newSource?.videoContentHint.toInternal ?? AmazonChimeSDKMedia.VideoContentHint.none
+        }
+    }
 
-    init(source: VideoSource) {
-        self.source = source
-        self.contentHint = source.videoContentHint.toInternal
+    override init() {
         super.init()
-
-        source.addVideoSink(sink: self)
     }
 
     func onVideoFrameReceived(frame: VideoFrame?) {

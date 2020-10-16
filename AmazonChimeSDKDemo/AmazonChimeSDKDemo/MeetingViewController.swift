@@ -334,7 +334,7 @@ class MeetingViewController: UIViewController {
                                          handler: {_ in self.toggleCpuFilter() })
         optionMenu.addAction(cpuFilterAction)
 
-        let customSourceAction = UIAlertAction(title: "Toggle demo usage of custom video source API",
+        let customSourceAction = UIAlertAction(title: "Toggle custom video source API",
                                          style: .default,
                                          handler: {_ in self.toggleCustomCameraSource() })
         optionMenu.addAction(customSourceAction)
@@ -411,9 +411,9 @@ class MeetingViewController: UIViewController {
     @objc private func toggleCpuFilter() {
         logger.error(msg: "Toggling CPU filter")
     }
-    
+
     @objc private func toggleCustomCameraSource() {
-        logger.error(msg: "Toggling usage of custom camera source")
+        logger.info(msg: "Toggling usage of custom camera source")
     }
 }
 

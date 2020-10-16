@@ -77,6 +77,12 @@ class MeetingModel: NSObject {
             isEndedHandler?()
         }
     }
+    
+    var isUsingExternalVideoSource = true {
+        didSet {
+            startLocalVideo()
+        }
+    }
 
     var audioDevices: [MediaDevice] {
         return currentMeetingSession.audioVideo.listAudioDevices()

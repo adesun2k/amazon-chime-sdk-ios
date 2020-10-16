@@ -18,6 +18,7 @@ class DefaultVideoClientController: NSObject {
     var meetingId: String?
     var signalingUrl: String?
     var videoClient: VideoClient?
+    var videoSourceAdapter = VideoSourceAdapter()
     var videoClientState: VideoClientState = .uninitialized
     let videoTileControllerObservers = ConcurrentMutableSet()
     let videoObservers = ConcurrentMutableSet()
@@ -377,7 +378,7 @@ extension DefaultVideoClientController: VideoClientController {
     // MARK: - Video selection
     public func startLocalVideo() throws {
         try checkVideoPermission()
-        chooseVideoSource(source: internalCaptureSource)
+        setExternalVideoSource(source: internalCaptureSource)
 
         logger.info(msg: "Starting local video with internal source")
         internalCaptureSource.start()
@@ -385,20 +386,20 @@ extension DefaultVideoClientController: VideoClientController {
     }
 
     public func startLocalVideo(source: VideoSource) {
-        chooseVideoSource(source: source)
+        setExternalVideoSource(source: source)
 
         logger.info(msg: "Starting local video with custom source")
         isUsingInternalCaptureSource = false
     }
 
-    private func chooseVideoSource(source: VideoSource) {
+    private func setExternalVideoSource(source: VideoSource) {
         guard videoClientState != .uninitialized else {
             logger.fault(msg: "VideoClient is not initialized so returning without doing anything")
             return
         }
 
-        logger.info(msg: "Starting local video")
-        videoClient?.chooseVideoSource(VideoSourceAdapter(source: source))
+        videoSourceAdapter.source = source
+        videoClient?.setExternalVideoSource(videoSourceAdapter)
         videoClient?.setSending(true)
     }
 

@@ -36,6 +36,7 @@ class DeviceSelectionViewController: UIViewController {
             return
         }
         model.cameraCaptureSource.stop()
+        model.cameraCaptureSource.removeVideoSink(sink: videoPreviewImageView)
         MeetingModule.shared().deviceSelected(model)
     }
 }
