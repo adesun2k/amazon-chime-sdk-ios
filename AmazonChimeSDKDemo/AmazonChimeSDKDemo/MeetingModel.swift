@@ -77,9 +77,10 @@ class MeetingModel: NSObject {
             isEndedHandler?()
         }
     }
-    
+
     var isUsingExternalVideoSource = true {
         didSet {
+            stopLocalVideo()
             startLocalVideo()
         }
     }
@@ -260,16 +261,26 @@ class MeetingModel: NSObject {
     private func startLocalVideo() {
         MeetingModule.shared().requestVideoPermission { success in
             if success {
-                self.videoModel.customSource.device = self.deviceSelectionModel.selectedVideoDevice
-                self.videoModel.customSource.start()
-                self.currentMeetingSession.audioVideo.startLocalVideo(source: self.videoModel.customSource)
+                if self.isUsingExternalVideoSource {
+                    self.videoModel.customSource.device = self.deviceSelectionModel.selectedVideoDevice
+                    self.videoModel.customSource.start()
+                    self.currentMeetingSession.audioVideo.startLocalVideo(source: self.videoModel.customSource)
+                } else {
+                    do {
+                        try self.currentMeetingSession.audioVideo.startLocalVideo()
+                    } catch {
+                        self.logger.error(msg: "Error starting local video: \(error.localizedDescription)")
+                    }
+                }
             }
         }
     }
 
     private func stopLocalVideo() {
         currentMeetingSession.audioVideo.stopLocalVideo()
-        self.videoModel.customSource.stop()
+        if isUsingExternalVideoSource {
+            self.videoModel.customSource.stop()
+        }
     }
 
     private func logAttendee(attendeeInfo: [AttendeeInfo], action: String) {

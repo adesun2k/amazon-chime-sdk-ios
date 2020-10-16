@@ -161,12 +161,25 @@ class VideoModel: NSObject {
         }
         return remoteVideoStatesInCurrentPage[indexPath.item - 1].1
     }
+
+    func toggleTorch() -> Bool {
+        let desiredState = !customSource.torchEnabled
+        customSource.torchEnabled = desiredState
+        return customSource.torchEnabled == desiredState
+    }
 }
 
 extension VideoModel: VideoTileCellDelegate {
     func onTileButtonClicked(tag: Int, selected: Bool) {
         if tag == 0 {
-            customSource.switchCamera()
+            // To facilitate demoing and testing both use cases, we account for both our external
+            // camera and the camera managed by the facade.  Actual applications should
+            // only use one or the other
+            if audioVideoFacade.getActiveCamera() != nil {
+                audioVideoFacade.switchCamera()
+            } else {
+                customSource.switchCamera()
+            }
         } else {
             if let tileState = getVideoTileState(for: IndexPath(item: tag, section: 0)), !tileState.isLocalTile {
                 if selected {

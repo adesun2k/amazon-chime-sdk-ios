@@ -435,6 +435,7 @@ extension DefaultVideoClientController: VideoClientController {
 
     public func switchCamera() {
         if isUsingInternalCaptureSource {
+            logger.info(msg: "Switching camera on internal source")
             internalCaptureSource.switchCamera()
         }
     }

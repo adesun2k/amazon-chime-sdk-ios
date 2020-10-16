@@ -52,6 +52,22 @@ import UIKit
         }
     }
 
+    public var torchEnabled: Bool = false {
+        didSet {
+            if let captureDevice = captureDevice, captureDevice.hasTorch, captureDevice.isTorchAvailable {
+                try? captureDevice.lockForConfiguration()
+                if torchEnabled {
+                    captureDevice.torchMode = .on
+                } else {
+                    captureDevice.torchMode = .off
+                }
+                captureDevice.unlockForConfiguration()
+            } else {
+                torchEnabled = false
+            }
+        }
+    }
+
     public func addVideoSink(sink: VideoSink) {
         sinks.add(sink)
     }
@@ -86,30 +102,26 @@ import UIKit
         updateOrientation()
 
         session.startRunning()
+
+        // If the torch was currently on, starting the sessions
+        // would turn it off.  See if we can turn it back on.
+        let currentTorchEnabled = torchEnabled
+        self.torchEnabled = currentTorchEnabled
     }
 
     public func stop() {
         session.stopRunning()
+
+        // If the torch was currently on, stopping the sessions
+        // would turn it off.  See if we can turn it back on.
+        let currentTorchEnabled = torchEnabled
+        self.torchEnabled = currentTorchEnabled
     }
 
     public func switchCamera() {
         isUsingFrontCamera = !isUsingFrontCamera
         stop()
         start()
-    }
-
-    // TODO: not working, torch does not stay on
-    public func toggleTorch(on: Bool) {
-        if let captureDevice = captureDevice, captureDevice.hasTorch, captureDevice.isTorchAvailable {
-            try? captureDevice.lockForConfiguration()
-            if on {
-                captureDevice.torchMode = .on
-                try? captureDevice.setTorchModeOn(level: 1)
-            } else {
-                captureDevice.torchMode = .off
-            }
-            captureDevice.unlockForConfiguration()
-        }
     }
 
     private func updateOrientation() {

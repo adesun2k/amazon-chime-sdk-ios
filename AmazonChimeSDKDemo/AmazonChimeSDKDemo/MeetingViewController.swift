@@ -402,18 +402,50 @@ class MeetingViewController: UIViewController {
 
     @objc private func toggleTorch() {
         logger.error(msg: "Toggling torch")
+        guard let meetingModel = meetingModel else {
+            return
+        }
+        if !meetingModel.isUsingExternalVideoSource {
+            meetingModel.notifyHandler?("Cannot toggle flashlight without using custom camera capture source")
+            return
+        }
+        if !meetingModel.videoModel.toggleTorch() {
+            meetingModel.notifyHandler?("Failed to toggle torch on current camera; torch may not be available")
+        }
     }
     
     @objc private func toggleGpuFilter() {
         logger.error(msg: "Toggling GPU filter")
+        guard let meetingModel = meetingModel else {
+            return
+        }
+        if !meetingModel.isUsingExternalVideoSource {
+            meetingModel.notifyHandler?("Cannot toggle filters without using custom camera capture source")
+            return
+        }
+        meetingModel.notifyHandler?("Cannot toggle both filters on at same time")
+
     }
     
     @objc private func toggleCpuFilter() {
         logger.error(msg: "Toggling CPU filter")
+        guard let meetingModel = meetingModel else {
+            return
+        }
+        if !meetingModel.isUsingExternalVideoSource {
+            meetingModel.notifyHandler?("Cannot toggle filters without using custom camera capture source")
+            return
+        }
+        meetingModel.notifyHandler?("Cannot toggle both filters on at same time")
+
     }
 
     @objc private func toggleCustomCameraSource() {
         logger.info(msg: "Toggling usage of custom camera source")
+        guard let meetingModel = meetingModel else {
+            return
+        }
+        meetingModel.isUsingExternalVideoSource = !meetingModel.isUsingExternalVideoSource
     }
 }
 
