@@ -36,4 +36,13 @@ import Foundation
     /// Get currently used video device
     /// - Returns: a media device or nil if no device is present
     func getActiveCamera() -> MediaDevice?
+
+    /// List available video devices
+    /// - Returns: list of available video devices
+    func listVideoDevices() -> [MediaDevice]
+
+    /// List supported video capture formats by the media device
+    /// - Parameter mediaDevice: the media device that is used
+    /// - Returns: list of available video device formats
+    func listSupportedVideoCaptureFormats(mediaDevice: MediaDevice) -> [VideoCaptureFormat]
 }

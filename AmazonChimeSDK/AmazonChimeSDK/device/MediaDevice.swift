@@ -34,6 +34,67 @@ import Foundation
         return MediaDevice(label: device?.name ?? "unknown", videoDevice: device)
     }
 
+    /// List available video capture devices from the hardware
+    public static func listVideoDevices() -> [MediaDevice] {
+        let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera],
+                                                                mediaType: .video,
+                                                                position: .unspecified)
+        return discoverySession.devices.map { device in
+            var position = MediaDeviceType.other
+            if device.position == .front {
+                position = .videoFrontCamera
+            } else if device.position == .back {
+                position = .videoBackCamera
+            }
+            return MediaDevice(label: device.localizedName, type: position)
+        }
+    }
+
+    /// List available `VideoCaptureFormat` from the video capture device
+    /// - Parameter mediaDevice: Video capture device to query
+    public static func listSupportedVideoCaptureFormats(mediaDevice: MediaDevice) -> [VideoCaptureFormat] {
+        guard mediaDevice.type == .videoFrontCamera || mediaDevice.type == .videoBackCamera else {
+            return []
+        }
+        let position: AVCaptureDevice.Position = mediaDevice.type == .videoFrontCamera ? .front : .back
+        let discoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera],
+                                                                mediaType: .video,
+                                                                position: position)
+        guard let device = discoverySession.devices.first else {
+            return []
+        }
+        var supportedFormats: [VideoCaptureFormat] = []
+        for avFormat in device.formats {
+            var format = getVideoCaptureFormat(from: avFormat)
+            if format.height > Constants.maxSupportedVideoHeight {
+                continue
+            }
+            if format.maxFrameRate > Constants.maxSupportedVideoFrameRate {
+                format = VideoCaptureFormat(width: format.width,
+                                            height: format.height,
+                                            maxFrameRate: Constants.maxSupportedVideoFrameRate)
+            }
+            if !supportedFormats.contains(format) {
+                supportedFormats.append(format)
+            }
+        }
+        return supportedFormats
+    }
+
+    /// Helper function to convert `AVCaptureDevice.Format` to `VideoCaptureFormat`
+    /// - Parameter avFormat: format from the `AVCaptureDevice`
+    public static func getVideoCaptureFormat(from avFormat: AVCaptureDevice.Format) -> VideoCaptureFormat {
+        let dimensions = CMVideoFormatDescriptionGetDimensions(avFormat.formatDescription)
+        let frameRateRange = avFormat.videoSupportedFrameRateRanges.first
+        var maxFPS = Constants.maxSupportedVideoFrameRate
+        if let fps = frameRateRange?.maxFrameRate {
+            maxFPS = Int(fps)
+        }
+        return VideoCaptureFormat(width: Int(dimensions.width),
+                                  height: Int(dimensions.height),
+                                  maxFrameRate: maxFPS)
+    }
+
     public init(label: String, type: MediaDeviceType) {
         self.label = label
         self.type = type

@@ -19,7 +19,7 @@ import VideoToolbox
         }
     }
 
-    public override var contentMode: UIView.ContentMode {
+    override public var contentMode: UIView.ContentMode {
         willSet(newContentMode) {
             if !scalingContentModes.contains(newContentMode) {
                 os_log("""
@@ -37,6 +37,12 @@ import VideoToolbox
     // it without mirroring the entire view
     private var imageView: UIImageView
 
+    override public var image: UIImage? {
+        didSet(newImage) {
+            imageView.image = newImage
+        }
+    }
+
     public required init?(coder: NSCoder) {
         imageView = UIImageView()
         super.init(coder: coder)
@@ -44,7 +50,7 @@ import VideoToolbox
         initImageView()
     }
 
-    public override init(frame: CGRect) {
+    override public init(frame: CGRect) {
         imageView = UIImageView()
         super.init(frame: frame)
 
@@ -59,28 +65,35 @@ import VideoToolbox
         imageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
     }
 
-    // Expects CVPixelBuffer as frame type
-    public func renderFrame(frame: CVPixelBuffer?) {
-        if frame == nil {
-            isHidden = true
-            imageView.image = nil
-        } else if let frame = frame {
-            isHidden = false
-            var cgImage: CGImage?
-            VTCreateCGImageFromCVPixelBuffer(frame, options: nil, imageOut: &cgImage)
-            if cgImage == nil {
-                return
+    public func onVideoFrameReceived(frame: VideoFrame) {
+        if Thread.isMainThread {
+            renderOnMainThread(frame: frame)
+        } else {
+            DispatchQueue.main.async {
+                self.renderOnMainThread(frame: frame)
             }
-
-            if transformNeedsUpdate {
-                transformNeedsUpdate = false
-                if mirror {
-                    imageView.transform = CGAffineTransform(scaleX: -1, y: 1)
-                } else {
-                    imageView.transform = CGAffineTransform(scaleX: 1, y: 1)
-                }
-            }
-            imageView.image = UIImage(cgImage: cgImage!)
         }
+    }
+
+    private func renderOnMainThread(frame: VideoFrame) {
+        guard let buffer = (frame.buffer as? VideoFramePixelBuffer)?.pixelBuffer else {
+            return
+        }
+
+        var cgImage: CGImage?
+        VTCreateCGImageFromCVPixelBuffer(buffer, options: nil, imageOut: &cgImage)
+        guard let image = cgImage else {
+            return
+        }
+
+        if transformNeedsUpdate {
+            transformNeedsUpdate = false
+            if mirror {
+                imageView.transform = CGAffineTransform(scaleX: -1, y: 1)
+            } else {
+                imageView.transform = CGAffineTransform(scaleX: 1, y: 1)
+            }
+        }
+        imageView.image = UIImage(cgImage: image)
     }
 }

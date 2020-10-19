@@ -21,7 +21,7 @@ import VideoToolbox
     ///   - videoStreamContentWidth: width of the video stream being transmitted
     ///   - pauseState: current pause state of the video being received
     func onReceiveFrame(
-        frame: CVPixelBuffer?,
+        frame: VideoFrame?,
         videoId: Int,
         attendeeId: String?,
         pauseState: VideoPauseState

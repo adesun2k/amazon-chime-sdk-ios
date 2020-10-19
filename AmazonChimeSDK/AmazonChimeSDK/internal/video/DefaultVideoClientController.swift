@@ -18,6 +18,7 @@ class DefaultVideoClientController: NSObject {
     var meetingId: String?
     var signalingUrl: String?
     var videoClient: VideoClient?
+    var videoSourceAdapter = VideoSourceAdapter()
     var videoClientState: VideoClientState = .uninitialized
     let videoTileControllerObservers = ConcurrentMutableSet()
     let videoObservers = ConcurrentMutableSet()
@@ -33,6 +34,8 @@ class DefaultVideoClientController: NSObject {
     private let tokenHeader = "X-Chime-Auth-Token"
     private let tokenKey = "_aws_wt_session"
     private let turnRequestHttpMethod = "POST"
+    private let internalCaptureSource = DefaultCameraCaptureSource()
+    private var isUsingInternalCaptureSource = true
 
     init(videoClient: VideoClient,
          clientMetricsCollector: ClientMetricsCollector,
@@ -91,11 +94,12 @@ class DefaultVideoClientController: NSObject {
             let jsonDecoder = JSONDecoder()
             do {
                 let turnCredentials: MeetingSessionTURNCredentials = try jsonDecoder.decode(
-                    MeetingSessionTURNCredentials.self, from: data)
+                    MeetingSessionTURNCredentials.self, from: data
+                )
 
                 let uriSize = turnCredentials.uris.count
                 let uris = UnsafeMutablePointer<UnsafePointer<Int8>?>.allocate(capacity: uriSize)
-                for index in 0..<uriSize {
+                for index in 0 ..< uriSize {
                     let uri = self.configuration.urlRewriter(turnCredentials.uris[index])
                     uris.advanced(by: index).pointee = (uri as NSString).utf8String
                 }
@@ -106,7 +110,8 @@ class DefaultVideoClientController: NSObject {
                     ttl: UInt64(turnCredentials.ttl),
                     signaling_url: (signalingUrl as NSString).utf8String,
                     turn_data_uris: uris,
-                    size: Int32(uriSize))
+                    size: Int32(uriSize)
+                )
 
                 self.videoClient?.updateTurnCreds(turnResponse, turn: VIDEO_CLIENT_TURN_FEATURE_ON)
             } catch {
@@ -209,7 +214,12 @@ class DefaultVideoClientController: NSObject {
 // MARK: - VideoClientDelegate
 
 extension DefaultVideoClientController: VideoClientDelegate {
-    func didReceive(_ buffer: CVPixelBuffer?, profileId: String?, pauseState: PauseState, videoId: UInt32) {
+    func didReceive(_ buffer: CVPixelBuffer?,
+                    profileId: String?,
+                    pauseState: PauseState,
+                    videoId: UInt32,
+                    timestampNs: Int64,
+                    rotation: AmazonChimeSDKMedia.VideoRotation) {
         // Translate the Obj-C enum to the public Swift enum
         var translatedPauseState: VideoPauseState
         switch pauseState {
@@ -223,8 +233,15 @@ extension DefaultVideoClientController: VideoClientDelegate {
             translatedPauseState = .unpaused
         }
 
+        var frame: VideoFrame?
+        if let buffer = buffer {
+            let pixelBuffer = VideoFramePixelBuffer(pixelBuffer: buffer)
+            frame = VideoFrame(timestampNs: timestampNs,
+                               rotation: VideoRotation(internalValue: rotation),
+                               buffer: pixelBuffer)
+        }
         ObserverUtils.forEach(observers: videoTileControllerObservers) { (observer: VideoTileController) in
-            observer.onReceiveFrame(frame: buffer,
+            observer.onReceiveFrame(frame: frame,
                                     videoId: Int(videoId),
                                     attendeeId: profileId,
                                     pauseState: translatedPauseState)
@@ -363,16 +380,29 @@ extension DefaultVideoClientController: VideoClientController {
     // MARK: - Video selection
 
     public func startLocalVideo() throws {
+        try checkVideoPermission()
+        setExternalVideoSource(source: internalCaptureSource)
+
+        logger.info(msg: "Starting local video with internal source")
+        internalCaptureSource.start()
+        isUsingInternalCaptureSource = true
+    }
+
+    public func startLocalVideo(source: VideoSource) {
+        setExternalVideoSource(source: source)
+
+        logger.info(msg: "Starting local video with custom source")
+        isUsingInternalCaptureSource = false
+    }
+
+    private func setExternalVideoSource(source: VideoSource) {
         guard videoClientState != .uninitialized else {
             logger.fault(msg: "VideoClient is not initialized so returning without doing anything")
             return
         }
-        try checkVideoPermission()
 
-        logger.info(msg: "Starting local video")
-        if VideoClient.currentDevice() == nil {
-            setFrontCameraAsCurrentDevice()
-        }
+        videoSourceAdapter.source = source
+        videoClient?.setExternalVideoSource(videoSourceAdapter)
         videoClient?.setSending(true)
     }
 
@@ -383,6 +413,9 @@ extension DefaultVideoClientController: VideoClientController {
         }
         logger.info(msg: "Stopping local video")
         videoClient?.setSending(false)
+        if isUsingInternalCaptureSource {
+            internalCaptureSource.stop()
+        }
     }
 
     public func startRemoteVideo() {
@@ -404,22 +437,17 @@ extension DefaultVideoClientController: VideoClientController {
     }
 
     public func switchCamera() {
-        guard videoClientState != .uninitialized else {
-            logger.error(msg: "Cannot switch camera because videoClientState=\(videoClientState)")
-            return
-        }
-
-        logger.info(msg: "Swiching between cameras")
-
-        if let devices = (VideoClient.devices() as? [VideoDevice]) {
-            if let nextDevice = devices.first(where: { $0.identifier != VideoClient.currentDevice()?.identifier }) {
-                videoClient?.setCurrentDevice(nextDevice)
-            }
+        if isUsingInternalCaptureSource {
+            logger.info(msg: "Switching camera on internal source")
+            internalCaptureSource.switchCamera()
         }
     }
 
-    public func getCurrentDevice() -> VideoDevice? {
-        return VideoClient.currentDevice()
+    public func getCurrentDevice() -> MediaDevice? {
+        if isUsingInternalCaptureSource {
+            return internalCaptureSource.device
+        }
+        return nil
     }
 
     public func getConfiguration() -> MeetingSessionConfiguration {

@@ -33,6 +33,9 @@ import Foundation
     /// - Throws: `PermissionError.videoPermissionError` if video permission of `AVCaptureDevice` is not granted
     func startLocalVideo() throws
 
+    /// Enable self video to start streaming
+    func startLocalVideo(source: VideoSource)
+
     /// Disable self video streaming
     func stopLocalVideo()
 

@@ -52,6 +52,10 @@ import Foundation
         try audioVideoController.startLocalVideo()
     }
 
+    public func startLocalVideo(source: VideoSource) {
+        audioVideoController.startLocalVideo(source: source)
+    }
+
     public func stopLocalVideo() {
         audioVideoController.stopLocalVideo()
     }
@@ -139,6 +143,14 @@ import Foundation
 
     public func getActiveCamera() -> MediaDevice? {
         return deviceController.getActiveCamera()
+    }
+
+    public func listVideoDevices() -> [MediaDevice] {
+        return deviceController.listVideoDevices()
+    }
+
+    public func listSupportedVideoCaptureFormats(mediaDevice: MediaDevice) -> [VideoCaptureFormat] {
+        return deviceController.listSupportedVideoCaptureFormats(mediaDevice: mediaDevice)
     }
 
     // MARK: VideoTileController
