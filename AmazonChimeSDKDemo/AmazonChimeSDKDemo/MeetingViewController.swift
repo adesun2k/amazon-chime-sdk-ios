@@ -18,6 +18,7 @@ class MeetingViewController: UIViewController {
     @IBOutlet var controlView: UIView!
     @IBOutlet var cameraButton: UIButton!
     @IBOutlet var deviceButton: UIButton!
+    @IBOutlet var additionalOptionsButton: UIButton!
     @IBOutlet var endButton: UIButton!
     @IBOutlet var muteButton: UIButton!
     @IBOutlet var resumeCallKitMeetingButton: UIButton!
@@ -87,8 +88,9 @@ class MeetingViewController: UIViewController {
             layout.scrollDirection = .vertical
         }
     }
+
     private func registerForKeyboardNotifications() {
-        //Adding notifies on keyboard appearing
+        // Adding notifies on keyboard appearing
         NotificationCenter
             .default
             .addObserver(self,
@@ -103,7 +105,7 @@ class MeetingViewController: UIViewController {
     }
 
     private func deregisterFromKeyboardNotifications() {
-        //Removing notifies on keyboard appearing
+        // Removing notifies on keyboard appearing
         NotificationCenter
             .default
             .removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -165,7 +167,7 @@ class MeetingViewController: UIViewController {
         titleLabel.accessibilityLabel = "Meeting ID \(meetingModel?.meetingId ?? "")"
 
         // Buttons
-        let buttonStack = [muteButton, deviceButton, cameraButton, endButton, sendMessageButton]
+        let buttonStack = [muteButton, deviceButton, cameraButton, additionalOptionsButton, endButton, sendMessageButton]
         for button in buttonStack {
             let normalButtonImage = button?.image(for: .normal)?.withRenderingMode(.alwaysTemplate)
             let selectedButtonImage = button?.image(for: .selected)?.withRenderingMode(.alwaysTemplate)
@@ -299,19 +301,48 @@ class MeetingViewController: UIViewController {
         meetingModel?.isLocalVideoActive = cameraButton.isSelected
     }
 
+    @IBAction func additionalOptionsButtonClicked(_: UIButton) {
+        let optionMenu = UIAlertController(title: nil, message: "Additional Options", preferredStyle: .actionSheet)
+
+        let torchAction = UIAlertAction(title: "Toggle torch on current camera",
+                                        style: .default,
+                                        handler: { _ in self.toggleTorch() })
+        optionMenu.addAction(torchAction)
+
+        let gpuFilterAction = UIAlertAction(title: "Toggle Core Image video filter",
+                                            style: .default,
+                                            handler: { _ in self.toggleCoreImageFilter() })
+        optionMenu.addAction(gpuFilterAction)
+
+        let cpuFilterAction = UIAlertAction(title: "Toggle Metal video filter",
+                                            style: .default,
+                                            handler: { _ in self.toggleMetalFilter() })
+        optionMenu.addAction(cpuFilterAction)
+
+        let customSourceAction = UIAlertAction(title: "Toggle custom video source API usage",
+                                               style: .default,
+                                               handler: { _ in self.toggleCustomCameraSource() })
+        optionMenu.addAction(customSourceAction)
+
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
+        optionMenu.addAction(cancelAction)
+
+        present(optionMenu, animated: true, completion: nil)
+    }
+
     @IBAction func leaveButtonClicked(_: UIButton) {
         meetingModel?.endMeeting()
         deregisterFromKeyboardNotifications()
     }
 
-    @IBAction func inputTextChanged(_ sender: Any, forEvent event: UIEvent) {
+    @IBAction func inputTextChanged(_: Any, forEvent _: UIEvent) {
         guard let text = self.inputText.text else {
             return
         }
         sendMessageButton.isEnabled = !text.isEmpty
     }
 
-    @IBAction func sendMessageButtonClicked(_ sender: Any) {
+    @IBAction func sendMessageButtonClicked(_: Any) {
         guard let text = self.inputText.text else {
             return
         }
@@ -325,18 +356,18 @@ class MeetingViewController: UIViewController {
         meetingModel?.resumeCallKitMeeting()
     }
 
-    @IBAction func prevPageButtonClicked(_ sender: UIButton) {
+    @IBAction func prevPageButtonClicked(_: UIButton) {
         meetingModel?.videoModel.getPreviousRemoteVideoPage()
         meetingModel?.videoModel.videoUpdatedHandler?()
     }
 
-    @IBAction func nextPageButtonClicked(_ sender: UIButton) {
+    @IBAction func nextPageButtonClicked(_: UIButton) {
         meetingModel?.videoModel.getNextRemoteVideoPage()
         meetingModel?.videoModel.videoUpdatedHandler?()
     }
 
     @objc private func keyboardShowHandler(notification: NSNotification) {
-        //Need to calculate keyboard exact size due to Apple suggestions
+        // Need to calculate keyboard exact size due to Apple suggestions
         guard let info: NSDictionary = notification.userInfo as NSDictionary? else {
             return
         }
@@ -347,11 +378,67 @@ class MeetingViewController: UIViewController {
         let viewHeight = self.view.frame.size.height
         let realOrigin = self.chatView.convert(self.inputBox.frame.origin, to: self.view)
         let inputBoxDistanceToBottom = viewHeight - realOrigin.y - self.inputBox.frame.height
-        self.inputBoxBottomConstrain.constant =  keyboardSize.height - inputBoxDistanceToBottom
+        self.inputBoxBottomConstrain.constant = keyboardSize.height - inputBoxDistanceToBottom
     }
 
-    @objc private func keyboardHideHandler(notification: NSNotification) {
+    @objc private func keyboardHideHandler(notification _: NSNotification) {
         self.inputBoxBottomConstrain.constant = 0
+    }
+
+    @objc private func toggleTorch() {
+        logger.error(msg: "Toggling torch")
+        guard let meetingModel = meetingModel else {
+            return
+        }
+        if !meetingModel.isUsingExternalVideoSource {
+            meetingModel.notifyHandler?("Cannot toggle flashlight without using custom camera capture source")
+            return
+        }
+        if !meetingModel.videoModel.toggleTorch() {
+            meetingModel.notifyHandler?("Failed to toggle torch on current camera; torch may not be available")
+        }
+    }
+
+    @objc private func toggleCoreImageFilter() {
+        logger.error(msg: "Toggling CoreImage filter")
+        guard let meetingModel = meetingModel else {
+            return
+        }
+        if !meetingModel.isUsingExternalVideoSource {
+            meetingModel.notifyHandler?("Cannot toggle filters without using custom camera capture source")
+            return
+        }
+        if meetingModel.isUsingMetalVideoProcessor {
+            meetingModel.notifyHandler?("Cannot toggle both filters on at same time")
+            return
+        }
+
+        meetingModel.isUsingCoreImageVideoProcessor = !meetingModel.isUsingCoreImageVideoProcessor
+    }
+
+    @objc private func toggleMetalFilter() {
+        logger.error(msg: "Toggling Metal filter")
+        guard let meetingModel = meetingModel else {
+            return
+        }
+        if !meetingModel.isUsingExternalVideoSource {
+            meetingModel.notifyHandler?("Cannot toggle filters without using custom camera capture source")
+            return
+        }
+        if meetingModel.isUsingCoreImageVideoProcessor {
+            meetingModel.notifyHandler?("Cannot toggle both filters on at same time")
+            return
+        }
+
+        meetingModel.isUsingMetalVideoProcessor = !meetingModel.isUsingMetalVideoProcessor
+    }
+
+    @objc private func toggleCustomCameraSource() {
+        logger.info(msg: "Toggling usage of custom camera source")
+        guard let meetingModel = meetingModel else {
+            return
+        }
+        meetingModel.isUsingExternalVideoSource = !meetingModel.isUsingExternalVideoSource
     }
 }
 
