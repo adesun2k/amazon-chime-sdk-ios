@@ -12,7 +12,7 @@ import Foundation
 
 /// `VideoSourceAdapter` provides two classes to adapt `VideoSource` to `VideoSourceInternal`.
 class VideoSourceAdapter: NSObject, VideoSink, VideoSourceInternal {
-    var contentHint = AmazonChimeSDKMedia.VideoContentHint.none
+    var contentHint = VideoContentHintInternal.none
 
     private let sinks = ConcurrentMutableSet()
 
@@ -24,7 +24,7 @@ class VideoSourceAdapter: NSObject, VideoSink, VideoSourceInternal {
             currentSource?.removeVideoSink(sink: self)
             newSource?.addVideoSink(sink: self)
             currentSource = newSource
-            contentHint = newSource?.videoContentHint.toInternal ?? AmazonChimeSDKMedia.VideoContentHint.none
+            contentHint = newSource?.videoContentHint.toInternal ?? VideoContentHintInternal.none
         }
     }
 

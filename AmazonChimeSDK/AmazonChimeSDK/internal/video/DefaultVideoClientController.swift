@@ -219,7 +219,7 @@ extension DefaultVideoClientController: VideoClientDelegate {
                     pauseState: PauseState,
                     videoId: UInt32,
                     timestampNs: Int64,
-                    rotation: AmazonChimeSDKMedia.VideoRotation) {
+                    rotation: VideoRotationInternal) {
         // Translate the Obj-C enum to the public Swift enum
         var translatedPauseState: VideoPauseState
         switch pauseState {

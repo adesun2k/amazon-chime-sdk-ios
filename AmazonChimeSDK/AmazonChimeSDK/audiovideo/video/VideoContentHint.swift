@@ -25,8 +25,8 @@ import Foundation
     /// significant sharp edges and areas of consistent color can occur frequently.
     case text = 3
 
-    var toInternal: AmazonChimeSDKMedia.VideoContentHint {
-        return AmazonChimeSDKMedia.VideoContentHint(rawValue: UInt(rawValue)) ?? .none
+    var toInternal: VideoContentHintInternal {
+        return VideoContentHintInternal(rawValue: UInt(rawValue)) ?? .none
     }
 
     var description: String {

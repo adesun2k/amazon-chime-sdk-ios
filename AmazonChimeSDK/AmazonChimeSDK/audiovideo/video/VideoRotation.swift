@@ -22,11 +22,11 @@ import Foundation
     /// Rotated 270 degrees clockwise.
     case rotation270 = 270
 
-    var toInternal: AmazonChimeSDKMedia.VideoRotation {
-        return AmazonChimeSDKMedia.VideoRotation(rawValue: UInt(rawValue)) ?? .rotation0
+    var toInternal: VideoRotationInternal {
+        return VideoRotationInternal(rawValue: UInt(rawValue)) ?? .rotation0
     }
 
-    init(internalValue: AmazonChimeSDKMedia.VideoRotation) {
+    init(internalValue: VideoRotationInternal) {
         self = VideoRotation(rawValue: Int(internalValue.rawValue)) ?? .rotation0
     }
 
