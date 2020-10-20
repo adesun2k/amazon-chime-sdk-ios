@@ -172,9 +172,7 @@ class VideoModel: NSObject {
 extension VideoModel: VideoTileCellDelegate {
     func onTileButtonClicked(tag: Int, selected: Bool) {
         if tag == 0 {
-            // To facilitate demoing and testing both use cases, we account for both our external
-            // camera and the camera managed by the facade.  Actual applications should
-            // only use one or the other
+            // See comments above MeetingModel::isUsingExternalVideoSource
             if audioVideoFacade.getActiveCamera() != nil {
                 audioVideoFacade.switchCamera()
             } else {

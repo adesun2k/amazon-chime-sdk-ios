@@ -12,6 +12,8 @@ import Foundation
 import Metal
 import MetalPerformanceShaders
 
+// This processor is not available on Apple A7 and older chips
+// since it uses MetalPerformanceShaders.
 class MetalVideoProcessor: VideoSource, VideoSink {
     var videoContentHint = VideoContentHint.motion
 
@@ -20,25 +22,29 @@ class MetalVideoProcessor: VideoSource, VideoSink {
     private let textureCache: CVMetalTextureCache
     // The command queue used to pass commands to the device.
     private let commandQueue: MTLCommandQueue
+    private let sinks = NSMutableSet()
 
     private var bufferPool: CVPixelBufferPool?
     private var bufferPoolWidth: Int = 0
     private var bufferPoolHeight: Int = 0
 
-    private let sinks = NSMutableSet()
-
-    // Note we intentionally treat all failures as fatal here
-    // as they indicate something is extremely broken and
-    // also makes this a lot less verbose.  Builders may desire
-    // more graceful failures
-
-    init() {
+    init?() {
         // Initialize metal state and caches
-        device = MTLCreateSystemDefaultDevice()!
+        guard let defaultDevice = MTLCreateSystemDefaultDevice(),
+            defaultDevice.supportsFeatureSet(.iOS_GPUFamily2_v1) else {
+            return nil
+        }
+        device = defaultDevice
         var metalTextureCache: CVMetalTextureCache?
         CVMetalTextureCacheCreate(nil, nil, device, nil, &metalTextureCache)
-        textureCache = metalTextureCache!
-        commandQueue = device.makeCommandQueue()!
+        guard let cache = metalTextureCache else {
+            return nil
+        }
+        textureCache = cache
+        guard let queue = device.makeCommandQueue() else {
+            return nil
+        }
+        commandQueue = queue
     }
 
     func addVideoSink(sink: VideoSink) {

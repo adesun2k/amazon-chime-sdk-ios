@@ -37,7 +37,8 @@ class MeetingModel: NSObject {
     let metricsModel = MetricsModel()
     let screenShareModel = ScreenShareModel()
     let chatModel = ChatModel()
-    lazy var deviceSelectionModel = DeviceSelectionModel(deviceController: currentMeetingSession.audioVideo, cameraCaptureSource: videoModel.customSource)
+    lazy var deviceSelectionModel = DeviceSelectionModel(deviceController: currentMeetingSession.audioVideo,
+                                                         cameraCaptureSource: videoModel.customSource)
     let uuid = UUID()
     var call: Call?
 
@@ -78,6 +79,9 @@ class MeetingModel: NSObject {
         }
     }
 
+    // To facilitate demoing and testing both use cases, we account for both our external
+    // camera and the camera managed by the facade.  Actual applications should
+    // only use one or the other
     var isUsingExternalVideoSource = true {
         didSet {
             if isLocalVideoActive {
@@ -97,7 +101,9 @@ class MeetingModel: NSObject {
         }
     }
 
+    // See comments in MetalVideoProcessor
     private let metalVideoProcessor = MetalVideoProcessor()
+
     var isUsingMetalVideoProcessor = false {
         didSet {
             if isLocalVideoActive {
@@ -122,6 +128,7 @@ class MeetingModel: NSObject {
     }
 
     var isFrontCameraActive: Bool {
+        // See comments above isUsingExternalVideoSource
         if let internalCamera = currentMeetingSession.audioVideo.getActiveCamera() {
             return internalCamera.type == .videoFrontCamera
         }
@@ -279,17 +286,20 @@ class MeetingModel: NSObject {
     private func startLocalVideo() {
         MeetingModule.shared().requestVideoPermission { success in
             if success {
+                // See comments above isUsingExternalVideoSource
                 if self.isUsingExternalVideoSource {
                     self.videoModel.customSource.device = self.deviceSelectionModel.selectedVideoDevice
                     var customSource: VideoSource = self.videoModel.customSource
                     customSource.removeVideoSink(sink: self.coreImageVideoProcessor)
-                    customSource.removeVideoSink(sink: self.metalVideoProcessor)
+                    if let metalVideoProcessor = self.metalVideoProcessor {
+                        customSource.removeVideoSink(sink: metalVideoProcessor)
+                    }
                     if self.isUsingCoreImageVideoProcessor {
                         customSource.addVideoSink(sink: self.coreImageVideoProcessor)
                         customSource = self.coreImageVideoProcessor
-                    } else if self.isUsingMetalVideoProcessor {
-                        customSource.addVideoSink(sink: self.metalVideoProcessor)
-                        customSource = self.metalVideoProcessor
+                    } else if self.isUsingMetalVideoProcessor, let metalVideoProcessor = self.metalVideoProcessor {
+                        customSource.addVideoSink(sink: metalVideoProcessor)
+                        customSource = metalVideoProcessor
                     }
                     self.videoModel.customSource.start()
                     self.currentMeetingSession.audioVideo.startLocalVideo(source: customSource)
@@ -306,6 +316,7 @@ class MeetingModel: NSObject {
 
     private func stopLocalVideo() {
         currentMeetingSession.audioVideo.stopLocalVideo()
+        // See comments above isUsingExternalVideoSource
         if isUsingExternalVideoSource {
             self.videoModel.customSource.stop()
         }

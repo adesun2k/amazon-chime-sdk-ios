@@ -221,6 +221,7 @@ class MeetingViewController: UIViewController {
         muteButton.isEnabled = true
         deviceButton.isEnabled = true
         cameraButton.isEnabled = true
+        additionalOptionsButton.isEnabled = true
 
         switch mode {
         case .roster:
@@ -250,6 +251,7 @@ class MeetingViewController: UIViewController {
             muteButton.isEnabled = false
             deviceButton.isEnabled = false
             cameraButton.isEnabled = false
+            additionalOptionsButton.isEnabled = false
         }
     }
 
@@ -327,6 +329,14 @@ class MeetingViewController: UIViewController {
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
         optionMenu.addAction(cancelAction)
 
+        if let popoverController = optionMenu.popoverPresentationController {
+            popoverController.sourceView = view
+            popoverController.sourceRect = CGRect(x: view.bounds.midX,
+                                                  y: view.bounds.midY,
+                                                  width: 0,
+                                                  height: 0)
+            popoverController.permittedArrowDirections = []
+        }
         present(optionMenu, animated: true, completion: nil)
     }
 
@@ -336,14 +346,14 @@ class MeetingViewController: UIViewController {
     }
 
     @IBAction func inputTextChanged(_: Any, forEvent _: UIEvent) {
-        guard let text = self.inputText.text else {
+        guard let text = inputText.text else {
             return
         }
         sendMessageButton.isEnabled = !text.isEmpty
     }
 
     @IBAction func sendMessageButtonClicked(_: Any) {
-        guard let text = self.inputText.text else {
+        guard let text = inputText.text else {
             return
         }
 
@@ -375,9 +385,9 @@ class MeetingViewController: UIViewController {
             return
         }
 
-        let viewHeight = self.view.frame.size.height
-        let realOrigin = self.chatView.convert(self.inputBox.frame.origin, to: self.view)
-        let inputBoxDistanceToBottom = viewHeight - realOrigin.y - self.inputBox.frame.height
+        let viewHeight = view.frame.size.height
+        let realOrigin = chatView.convert(inputBox.frame.origin, to: view)
+        let inputBoxDistanceToBottom = viewHeight - realOrigin.y - inputBox.frame.height
         self.inputBoxBottomConstrain.constant = keyboardSize.height - inputBoxDistanceToBottom
     }
 
@@ -386,7 +396,7 @@ class MeetingViewController: UIViewController {
     }
 
     @objc private func toggleTorch() {
-        logger.error(msg: "Toggling torch")
+        logger.info(msg: "Toggling torch")
         guard let meetingModel = meetingModel else {
             return
         }
@@ -400,7 +410,7 @@ class MeetingViewController: UIViewController {
     }
 
     @objc private func toggleCoreImageFilter() {
-        logger.error(msg: "Toggling CoreImage filter")
+        logger.info(msg: "Toggling CoreImage filter")
         guard let meetingModel = meetingModel else {
             return
         }
@@ -417,8 +427,13 @@ class MeetingViewController: UIViewController {
     }
 
     @objc private func toggleMetalFilter() {
-        logger.error(msg: "Toggling Metal filter")
+        logger.info(msg: "Toggling Metal filter")
         guard let meetingModel = meetingModel else {
+            return
+        }
+        // See comments in MetalVideoProcessor
+        guard let device = MTLCreateSystemDefaultDevice(), device.supportsFeatureSet(.iOS_GPUFamily2_v1) else {
+            meetingModel.notifyHandler?("Cannot toggle Metal filter because it's not available on this device")
             return
         }
         if !meetingModel.isUsingExternalVideoSource {
