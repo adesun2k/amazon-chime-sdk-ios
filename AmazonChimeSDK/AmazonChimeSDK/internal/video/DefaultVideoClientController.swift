@@ -35,7 +35,7 @@ class DefaultVideoClientController: NSObject {
     private let tokenKey = "_aws_wt_session"
     private let turnRequestHttpMethod = "POST"
     private let internalCaptureSource = DefaultCameraCaptureSource()
-    private var isUsingInternalCaptureSource = true
+    private var isInternalCaptureSourceRunning = true
 
     init(videoClient: VideoClient,
          clientMetricsCollector: ClientMetricsCollector,
@@ -385,14 +385,14 @@ extension DefaultVideoClientController: VideoClientController {
 
         logger.info(msg: "Starting local video with internal source")
         internalCaptureSource.start()
-        isUsingInternalCaptureSource = true
+        isInternalCaptureSourceRunning = true
     }
 
     public func startLocalVideo(source: VideoSource) {
         setExternalVideoSource(source: source)
 
         logger.info(msg: "Starting local video with custom source")
-        isUsingInternalCaptureSource = false
+        isInternalCaptureSourceRunning = false
     }
 
     private func setExternalVideoSource(source: VideoSource) {
@@ -413,8 +413,9 @@ extension DefaultVideoClientController: VideoClientController {
         }
         logger.info(msg: "Stopping local video")
         videoClient?.setSending(false)
-        if isUsingInternalCaptureSource {
+        if isInternalCaptureSourceRunning {
             internalCaptureSource.stop()
+            isInternalCaptureSourceRunning = false
         }
     }
 
@@ -437,14 +438,14 @@ extension DefaultVideoClientController: VideoClientController {
     }
 
     public func switchCamera() {
-        if isUsingInternalCaptureSource {
+        if isInternalCaptureSourceRunning {
             logger.info(msg: "Switching camera on internal source")
             internalCaptureSource.switchCamera()
         }
     }
 
     public func getCurrentDevice() -> MediaDevice? {
-        if isUsingInternalCaptureSource {
+        if isInternalCaptureSourceRunning {
             return internalCaptureSource.device
         }
         return nil

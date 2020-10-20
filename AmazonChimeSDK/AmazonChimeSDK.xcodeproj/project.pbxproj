@@ -119,6 +119,10 @@
 		B4980CB523E78D1800D2DB64 /* DefaultDeviceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4980CB423E78D1800D2DB64 /* DefaultDeviceController.swift */; };
 		B4980CB823E78F9500D2DB64 /* MediaDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4980CB723E78F9500D2DB64 /* MediaDevice.swift */; };
 		B4AEE47C24BE5A4600ED4B77 /* SendDataMessageErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4AEE47B24BE5A4600ED4B77 /* SendDataMessageErrorTests.swift */; };
+		C42A8A16253E35CD008419A6 /* VideoCaptureSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C42A8A15253E35CD008419A6 /* VideoCaptureSource.swift */; };
+		C42A8A18253E35F1008419A6 /* CaptureSourceObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = C42A8A17253E35F1008419A6 /* CaptureSourceObserver.swift */; };
+		C42A8A1A253E3618008419A6 /* CaptureSourceError.swift in Sources */ = {isa = PBXBuildFile; fileRef = C42A8A19253E3618008419A6 /* CaptureSourceError.swift */; };
+		C42A8A1C253E3B15008419A6 /* CameraCaptureSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C42A8A1B253E3B15008419A6 /* CameraCaptureSource.swift */; };
 		C494800624855B4700A41FF8 /* ConcurrentMutableSetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C494800524855B4700A41FF8 /* ConcurrentMutableSetTests.swift */; };
 		C49B5424247EFD2B002829F1 /* ConcurrentMutableSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49B5423247EFD2B002829F1 /* ConcurrentMutableSet.swift */; };
 		C4A6F9C4252E686700455418 /* VideoContentHint.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4A6F9C3252E686700455418 /* VideoContentHint.swift */; };
@@ -271,6 +275,10 @@
 		B4980CB423E78D1800D2DB64 /* DefaultDeviceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultDeviceController.swift; sourceTree = "<group>"; };
 		B4980CB723E78F9500D2DB64 /* MediaDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaDevice.swift; sourceTree = "<group>"; };
 		B4AEE47B24BE5A4600ED4B77 /* SendDataMessageErrorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendDataMessageErrorTests.swift; sourceTree = "<group>"; };
+		C42A8A15253E35CD008419A6 /* VideoCaptureSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCaptureSource.swift; sourceTree = "<group>"; };
+		C42A8A17253E35F1008419A6 /* CaptureSourceObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureSourceObserver.swift; sourceTree = "<group>"; };
+		C42A8A19253E3618008419A6 /* CaptureSourceError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureSourceError.swift; sourceTree = "<group>"; };
+		C42A8A1B253E3B15008419A6 /* CameraCaptureSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraCaptureSource.swift; sourceTree = "<group>"; };
 		C494800524855B4700A41FF8 /* ConcurrentMutableSetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcurrentMutableSetTests.swift; sourceTree = "<group>"; };
 		C49B5423247EFD2B002829F1 /* ConcurrentMutableSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcurrentMutableSet.swift; sourceTree = "<group>"; };
 		C4A6F9C3252E686700455418 /* VideoContentHint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoContentHint.swift; sourceTree = "<group>"; };
@@ -746,8 +754,12 @@
 		C4590E2B253E03530035F4E0 /* capture */ = {
 			isa = PBXGroup;
 			children = (
-				6AA9F9432522439F00EB0644 /* DefaultCameraCaptureSource.swift */,
+				C42A8A19253E3618008419A6 /* CaptureSourceError.swift */,
+				C42A8A17253E35F1008419A6 /* CaptureSourceObserver.swift */,
 				C4C540652538C08D00427A84 /* VideoCaptureFormat.swift */,
+				C42A8A15253E35CD008419A6 /* VideoCaptureSource.swift */,
+				C42A8A1B253E3B15008419A6 /* CameraCaptureSource.swift */,
+				6AA9F9432522439F00EB0644 /* DefaultCameraCaptureSource.swift */,
 			);
 			path = capture;
 			sourceTree = "<group>";
@@ -896,7 +908,7 @@
 			files = (
 			);
 			inputPaths = (
-				"/tmp/Mockingbird-7D11974B-1C50-4C20-8749-B2D96C9F3E5C",
+				"/tmp/Mockingbird-BEE4955D-E4B3-46A4-A8CF-BF7761A8928A",
 			);
 			name = "Generate Mockingbird Mocks";
 			outputPaths = (
@@ -904,7 +916,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -e\n\nmockingbird generate \\\n  --targets 'AmazonChimeSDK' \\\n  --outputs \"${SRCROOT}/MockingbirdMocks/AmazonChimeSDKTests-AmazonChimeSDKMocks.generated.swift\"\n\n# Ensure mocks are generated prior to running Compile Sources\nrm -f '/tmp/Mockingbird-7D11974B-1C50-4C20-8749-B2D96C9F3E5C'\n";
+			shellScript = "set -e\n\nmockingbird generate \\\n  --targets 'AmazonChimeSDK' \\\n  --outputs \"${SRCROOT}/MockingbirdMocks/AmazonChimeSDKTests-AmazonChimeSDKMocks.generated.swift\"\n\n# Ensure mocks are generated prior to running Compile Sources\nrm -f '/tmp/Mockingbird-BEE4955D-E4B3-46A4-A8CF-BF7761A8928A'\n";
 		};
 		114854BF06996650440AB080 /* Clean Mockingbird Mocks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -915,11 +927,11 @@
 			);
 			name = "Clean Mockingbird Mocks";
 			outputPaths = (
-				"/tmp/Mockingbird-7D11974B-1C50-4C20-8749-B2D96C9F3E5C",
+				"/tmp/Mockingbird-BEE4955D-E4B3-46A4-A8CF-BF7761A8928A",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "echo $RANDOM > '/tmp/Mockingbird-7D11974B-1C50-4C20-8749-B2D96C9F3E5C'\n";
+			shellScript = "echo $RANDOM > '/tmp/Mockingbird-BEE4955D-E4B3-46A4-A8CF-BF7761A8928A'\n";
 		};
 		5A3CFC6423C52B5D00BB63B7 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -948,6 +960,7 @@
 				7C0D1BEF241ACC7B00280031 /* ActiveSpeakerDetectorFacade.swift in Sources */,
 				C49B5424247EFD2B002829F1 /* ConcurrentMutableSet.swift in Sources */,
 				7C0D1BF0241ACC7B00280031 /* ActiveSpeakerObserver.swift in Sources */,
+				C42A8A16253E35CD008419A6 /* VideoCaptureSource.swift in Sources */,
 				7C0D1BF1241ACC7B00280031 /* ActiveSpeakerPolicy.swift in Sources */,
 				5A16B94923FCC00100ADAE26 /* AudioClientController.swift in Sources */,
 				5A16B99223FCD95100ADAE26 /* AudioClientObserver.swift in Sources */,
@@ -971,11 +984,14 @@
 				0083972A23E0CA9D0063AB20 /* DefaultAudioClientController.swift in Sources */,
 				6AA9F94A2522439F00EB0644 /* VideoFramePixelBuffer.swift in Sources */,
 				C4C540662538C08D00427A84 /* VideoCaptureFormat.swift in Sources */,
+				C42A8A18253E35F1008419A6 /* CaptureSourceObserver.swift in Sources */,
 				5A16B9A623FCD96000ADAE26 /* DefaultAudioClientObserver.swift in Sources */,
+				C42A8A1A253E3618008419A6 /* CaptureSourceError.swift in Sources */,
 				5A175AB223CFD27400121924 /* DefaultAudioVideoController.swift in Sources */,
 				5A175AB823CFD28A00121924 /* DefaultAudioVideoFacade.swift in Sources */,
 				6AA9F93F2522438F00EB0644 /* VideoSourceAdapter.swift in Sources */,
 				5A16B9C923FDF44500ADAE26 /* DefaultClientMetricsCollector.swift in Sources */,
+				C42A8A1C253E3B15008419A6 /* CameraCaptureSource.swift in Sources */,
 				F8E42DEE247F9464004C8400 /* ConcurrentDictionary.swift in Sources */,
 				B4980CB523E78D1800D2DB64 /* DefaultDeviceController.swift in Sources */,
 				5A6A209923CB1164000C9157 /* DefaultMeetingSession.swift in Sources */,

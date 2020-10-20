@@ -10,12 +10,12 @@ import AVFoundation
 import Foundation
 import UIKit
 
-@objcMembers public class DefaultCameraCaptureSource: NSObject, VideoSource {
+@objcMembers public class DefaultCameraCaptureSource: NSObject, CameraCaptureSource {
     public var videoContentHint: VideoContentHint = .none
-    public private(set) var isUsingFrontCamera = true
 
     private let deviceType = AVCaptureDevice.DeviceType.builtInWideAngleCamera
     private let sinks = ConcurrentMutableSet()
+    private let captureSourceObservers = ConcurrentMutableSet()
     private let output = AVCaptureVideoDataOutput()
     private let captureQueue = DispatchQueue(label: "captureQueue")
     private static let defaultCaptureFormat = VideoCaptureFormat(width: (Constants.maxSupportedVideoHeight / 9) * 16,
@@ -24,9 +24,17 @@ import UIKit
 
     private var session = AVCaptureSession()
     private var orientation = UIDeviceOrientation.portrait
+    private var captureDevice: AVCaptureDevice?
 
     override public init() {
         super.init()
+
+        device = MediaDevice.listVideoDevices().first { mediaDevice in
+            mediaDevice.type == MediaDeviceType.videoFrontCamera
+        }
+        captureDevice = AVCaptureDevice.default(deviceType,
+                                               for: .video,
+                                               position: .front)
 
         let notificationCenter = NotificationCenter.default
         notificationCenter.addObserver(self,
@@ -35,37 +43,23 @@ import UIKit
                                        object: nil)
     }
 
-    private var captureDevice: AVCaptureDevice? {
-        return AVCaptureDevice.default(deviceType,
-                                       for: .video,
-                                       position: isUsingFrontCamera ? .front : .back)
-    }
-
     public var device: MediaDevice? {
-        get {
-            guard session.isRunning, let captureDevice = captureDevice else {
-                return nil
-            }
-            return MediaDevice(label: captureDevice.localizedName,
-                               type: isUsingFrontCamera ? .videoFrontCamera : .videoBackCamera)
-        }
-        set(newDevice) {
-            if let newDevice = newDevice {
-                isUsingFrontCamera = newDevice.type == .videoFrontCamera
-                if session.isRunning {
-                    stop()
-                    start()
-                }
+        didSet {
+            guard let device = device else { return }
+            let isUsingFrontCamera = device.type == .videoFrontCamera
+            captureDevice = AVCaptureDevice.default(deviceType,
+                                                    for: .video,
+                                                    position: isUsingFrontCamera ? .front : .back)
+            if session.isRunning {
+                stop()
+                start()
             }
         }
     }
 
-    public var format: VideoCaptureFormat? = defaultCaptureFormat {
+    public var format: VideoCaptureFormat = defaultCaptureFormat {
         didSet {
-            guard format != nil, captureDevice != nil else {
-                return
-            }
-            if session.isRunning {
+            if captureDevice != nil, session.isRunning {
                 stop()
                 start()
             }
@@ -108,6 +102,9 @@ import UIKit
         guard let deviceInput = try? AVCaptureDeviceInput(device: captureDevice),
             session.canAddInput(deviceInput) else {
             session.commitConfiguration()
+            ObserverUtils.forEach(observers: captureSourceObservers) { (observer: CaptureSourceObserver) in
+                observer.captureDidFail(error: .configurationFailure)
+            }
             return
         }
         session.addInput(deviceInput)
@@ -118,6 +115,12 @@ import UIKit
 
         if session.canAddOutput(output) {
             session.addOutput(output)
+        } else {
+            session.commitConfiguration()
+            ObserverUtils.forEach(observers: captureSourceObservers) { (observer: CaptureSourceObserver) in
+                observer.captureDidFail(error: .configurationFailure)
+            }
+            return
         }
 
         session.commitConfiguration()
@@ -130,6 +133,10 @@ import UIKit
         // would turn it off.  See if we can turn it back on.
         let currentTorchEnabled = torchEnabled
         self.torchEnabled = currentTorchEnabled
+
+        ObserverUtils.forEach(observers: captureSourceObservers) { (observer: CaptureSourceObserver) in
+            observer.captureDidStart()
+        }
     }
 
     public func stop() {
@@ -139,12 +146,25 @@ import UIKit
         // would turn it off.  See if we can turn it back on.
         let currentTorchEnabled = torchEnabled
         self.torchEnabled = currentTorchEnabled
+
+        ObserverUtils.forEach(observers: captureSourceObservers) { (observer: CaptureSourceObserver) in
+            observer.captureDidStop()
+        }
     }
 
     public func switchCamera() {
-        isUsingFrontCamera = !isUsingFrontCamera
-        stop()
-        start()
+        let isUsingFrontCamera = device?.type == .videoFrontCamera
+        device = MediaDevice.listVideoDevices().first { mediaDevice in
+            mediaDevice.type == (isUsingFrontCamera ? .videoBackCamera : .videoFrontCamera)
+        }
+    }
+
+    public func addCaptureSourceObserver(observer: CaptureSourceObserver) {
+        captureSourceObservers.add(observer)
+    }
+
+    public func removeCaptureSourceObserver(observer: CaptureSourceObserver) {
+        captureSourceObservers.remove(observer)
     }
 
     private func updateOrientation() {
@@ -168,7 +188,7 @@ import UIKit
     }
 
     private func updateDeviceCaptureFormat() {
-        guard let captureDevice = captureDevice, let format = format else {
+        guard let captureDevice = captureDevice else {
             return
         }
         // choose a supported format that is closest to `self.format`.
@@ -180,13 +200,11 @@ import UIKit
             let diffB = abs(formatB.width - format.width) + abs(formatB.height - format.height)
             return diffA < diffB
         }
-        guard let chosenFormat = newAVFormat else {
+        guard let chosenFormat = newAVFormat, chosenFormat != captureDevice.activeFormat else {
             captureDevice.unlockForConfiguration()
             return
         }
-        print("chosenFormat: " + chosenFormat.description)
         captureDevice.activeFormat = chosenFormat
-        print("activeFormat: " + captureDevice.activeFormat.description)
         captureDevice.unlockForConfiguration()
     }
 
@@ -201,11 +219,16 @@ extension DefaultCameraCaptureSource: AVCaptureVideoDataOutputSampleBufferDelega
     public func captureOutput(_: AVCaptureOutput,
                               didOutput sampleBuffer: CMSampleBuffer,
                               from _: AVCaptureConnection) {
-        if CMSampleBufferGetNumSamples(sampleBuffer) != 1 || !CMSampleBufferIsValid(sampleBuffer) ||
-            !CMSampleBufferDataIsReady(sampleBuffer) {
+        guard CMSampleBufferGetNumSamples(sampleBuffer) == 1,
+            CMSampleBufferIsValid(sampleBuffer),
+            CMSampleBufferDataIsReady(sampleBuffer),
+            let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
+
+            ObserverUtils.forEach(observers: captureSourceObservers) { (observer: CaptureSourceObserver) in
+                observer.captureDidFail(error: .systemFailure)
+            }
             return
         }
-        guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
         let buffer = VideoFramePixelBuffer(pixelBuffer: pixelBuffer)
         let timestampNs = CMTimeGetSeconds(CMSampleBufferGetOutputPresentationTimeStamp(sampleBuffer))
             * Double(Constants.nanosecondsPerSecond)
