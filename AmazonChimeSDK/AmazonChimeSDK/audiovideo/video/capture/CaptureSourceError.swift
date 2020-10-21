@@ -18,4 +18,15 @@ import Foundation
 
     /// A failure observed during configuration.
     case configurationFailure = 2
+
+    var description: String {
+        switch self {
+        case .unknown:
+            return "unknown"
+        case .systemFailure:
+            return "systemFailure"
+        case .configurationFailure:
+            return "configurationFailure"
+        }
+    }
 }
