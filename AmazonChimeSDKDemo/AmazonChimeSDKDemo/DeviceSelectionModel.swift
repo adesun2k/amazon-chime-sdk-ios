@@ -30,6 +30,7 @@ class DeviceSelectionModel {
 
     var selectedVideoFormatIndex = 0 {
         didSet {
+            guard let selectedVideoFormat = selectedVideoFormat else { return }
             cameraCaptureSource.format = selectedVideoFormat
         }
     }
@@ -38,16 +39,22 @@ class DeviceSelectionModel {
         return audioDevices[selectedAudioDeviceIndex]
     }
 
-    var selectedVideoDevice: MediaDevice {
+    var selectedVideoDevice: MediaDevice? {
+        if videoDevices.count == 0 {
+            return nil
+        }
         return videoDevices[selectedVideoDeviceIndex]
     }
 
-    var selectedVideoFormat: VideoCaptureFormat {
+    var selectedVideoFormat: VideoCaptureFormat? {
+        if videoDevices.count == 0 {
+            return nil
+        }
         return supportedVideoFormat[selectedVideoDeviceIndex][selectedVideoFormatIndex]
     }
 
     var shouldMirrorPreview: Bool {
-        return selectedVideoDevice.type == MediaDeviceType.videoFrontCamera
+        return selectedVideoDevice?.type == MediaDeviceType.videoFrontCamera
     }
 
     init(deviceController: DeviceController, cameraCaptureSource: DefaultCameraCaptureSource) {
@@ -56,6 +63,7 @@ class DeviceSelectionModel {
         videoDevices = deviceController.listVideoDevices().reversed()
         self.cameraCaptureSource = cameraCaptureSource
         cameraCaptureSource.device = selectedVideoDevice
+        guard let selectedVideoFormat = selectedVideoFormat else { return }
         cameraCaptureSource.format = selectedVideoFormat
     }
 }

@@ -110,6 +110,9 @@ extension DeviceSelectionViewController: UIPickerViewDataSource {
         } else if pickerView == videoDevicePicker {
             return model.videoDevices.count
         } else if pickerView == videoFormatPicker {
+            if model.videoDevices.count == 0 {
+                return 0
+            }
             return model.supportedVideoFormat[model.selectedVideoDeviceIndex].count
         } else {
             return 0
