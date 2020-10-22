@@ -11,7 +11,7 @@ import Foundation
 import UIKit
 
 @objcMembers public class DefaultCameraCaptureSource: NSObject, CameraCaptureSource {
-    public var videoContentHint: VideoContentHint = .none
+    public var videoContentHint: VideoContentHint = .motion
 
     private let deviceType = AVCaptureDevice.DeviceType.builtInWideAngleCamera
     private let sinks = ConcurrentMutableSet()
@@ -92,11 +92,9 @@ import UIKit
 
     public func start() {
         session = AVCaptureSession()
-
         guard let captureDevice = captureDevice else {
             return
         }
-
         session.beginConfiguration()
 
         guard let deviceInput = try? AVCaptureDeviceInput(device: captureDevice),
@@ -108,9 +106,7 @@ import UIKit
             return
         }
         session.addInput(deviceInput)
-
         updateDeviceCaptureFormat()
-
         output.setSampleBufferDelegate(self, queue: captureQueue)
 
         if session.canAddOutput(output) {
@@ -122,11 +118,8 @@ import UIKit
             }
             return
         }
-
         session.commitConfiguration()
-
         updateOrientation()
-
         session.startRunning()
 
         // If the torch was currently on, starting the sessions
@@ -174,7 +167,7 @@ import UIKit
         orientation = UIDevice.current.orientation
 
         switch orientation {
-        case .portrait:
+        case .portrait, .unknown:
             connection.videoOrientation = .portrait
         case .landscapeLeft:
             connection.videoOrientation = .landscapeRight
@@ -183,7 +176,8 @@ import UIKit
         case .landscapeRight:
             connection.videoOrientation = .landscapeLeft
         default:
-            connection.videoOrientation = .portrait
+            // Do not update videoOrientation when the device is laying flat
+            return
         }
     }
 
