@@ -43,6 +43,16 @@ import UIKit
                                        object: nil)
     }
 
+    deinit {
+        if torchEnabled {
+            torchEnabled = false
+        }
+        if session.isRunning {
+            session.stopRunning()
+        }
+        NotificationCenter.default.removeObserver(self)
+    }
+
     public var device: MediaDevice? {
         didSet {
             guard let device = device else { return }
