@@ -126,7 +126,10 @@ class MeetingModule {
 
     func dismissMeeting(_ meeting: MeetingModel) {
         if let activeMeeting = activeMeeting, meeting.uuid == activeMeeting.uuid {
-            meetingPresenter.dismissActiveMeetingView(completion: {})
+            meetingPresenter.dismissActiveMeetingView {
+                self.meetings[activeMeeting.uuid] = nil
+                self.activeMeeting = nil
+            }
         } else {
             meetings[meeting.uuid] = nil
         }

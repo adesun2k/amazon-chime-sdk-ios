@@ -75,6 +75,7 @@ class MeetingModel: NSObject {
         didSet {
             currentMeetingSession.audioVideo.stop()
             videoModel.customSource.stop()
+            videoModel.customSource.torchEnabled = false
             isEndedHandler?()
         }
     }
