@@ -9,7 +9,8 @@
 import AmazonChimeSDKMedia
 import Foundation
 
-/// `VideoContentHint` describes the content type of a video source so that downstream encoders, etc.
+/// `VideoContentHint` describes the content type of a video source so that downstream encoders, etc. can properly
+/// decide on what parameters will work best.
 /// Implementations can be passed to the [AudioVideoFacade] to be used as the video source sent to remote participlants.
 @objc public enum VideoContentHint: Int {
     /// No hint has been provided.

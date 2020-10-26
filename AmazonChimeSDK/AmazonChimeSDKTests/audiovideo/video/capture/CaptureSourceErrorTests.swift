@@ -14,5 +14,6 @@ class CaptureSourceErrorTests: XCTestCase {
         XCTAssertEqual(CaptureSourceError.unknown.description, "unknown")
         XCTAssertEqual(CaptureSourceError.systemFailure.description, "systemFailure")
         XCTAssertEqual(CaptureSourceError.configurationFailure.description, "configurationFailure")
+        XCTAssertEqual(CaptureSourceError.invalidFrame.description, "invalidFrame")
     }
 }

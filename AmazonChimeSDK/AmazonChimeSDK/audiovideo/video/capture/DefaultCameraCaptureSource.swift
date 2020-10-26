@@ -13,6 +13,7 @@ import UIKit
 @objcMembers public class DefaultCameraCaptureSource: NSObject, CameraCaptureSource {
     public var videoContentHint: VideoContentHint = .motion
 
+    private let logger: Logger
     private let deviceType = AVCaptureDevice.DeviceType.builtInWideAngleCamera
     private let sinks = ConcurrentMutableSet()
     private let captureSourceObservers = ConcurrentMutableSet()
@@ -26,7 +27,8 @@ import UIKit
     private var orientation = UIDeviceOrientation.portrait
     private var captureDevice: AVCaptureDevice?
 
-    override public init() {
+    public init(logger: Logger) {
+        self.logger = logger
         super.init()
 
         device = MediaDevice.listVideoDevices().first { mediaDevice in
@@ -113,6 +115,7 @@ import UIKit
             ObserverUtils.forEach(observers: captureSourceObservers) { (observer: CaptureSourceObserver) in
                 observer.captureDidFail(error: .configurationFailure)
             }
+            logger.error(msg: "DefaultCameraCaptureSource configuration failure")
             return
         }
         session.addInput(deviceInput)
@@ -126,6 +129,7 @@ import UIKit
             ObserverUtils.forEach(observers: captureSourceObservers) { (observer: CaptureSourceObserver) in
                 observer.captureDidFail(error: .configurationFailure)
             }
+            logger.error(msg: "DefaultCameraCaptureSource configuration failure")
             return
         }
         session.commitConfiguration()
@@ -229,8 +233,9 @@ extension DefaultCameraCaptureSource: AVCaptureVideoDataOutputSampleBufferDelega
             let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
 
             ObserverUtils.forEach(observers: captureSourceObservers) { (observer: CaptureSourceObserver) in
-                observer.captureDidFail(error: .systemFailure)
+                observer.captureDidFail(error: .invalidFrame)
             }
+            logger.error(msg: "DefaultCameraCaptureSource invalid frame received")
             return
         }
         let buffer = VideoFramePixelBuffer(pixelBuffer: pixelBuffer)

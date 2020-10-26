@@ -13,11 +13,14 @@ import Foundation
     /// Unknown error, and catch-all for errors not otherwise covered.
     case unknown = 0
 
-    /// A failure observed from a system API used for capturing.
+    /// A permanent failure observed from a system API used for capturing.
     case systemFailure = 1
 
-    /// A failure observed during configuration.
+    /// A permanent failure observed during configuration.
     case configurationFailure = 2
+
+    /// A temporary failure observed when capture source generates an invalid frame which is ignored.
+    case invalidFrame = 3
 
     var description: String {
         switch self {
@@ -27,6 +30,8 @@ import Foundation
             return "systemFailure"
         case .configurationFailure:
             return "configurationFailure"
+        case .invalidFrame:
+            return "invalidFrame"
         }
     }
 }

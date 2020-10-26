@@ -37,12 +37,6 @@ import VideoToolbox
     // it without mirroring the entire view
     private var imageView: UIImageView
 
-    override public var image: UIImage? {
-        didSet(newImage) {
-            imageView.image = newImage
-        }
-    }
-
     public required init?(coder: NSCoder) {
         imageView = UIImageView()
         super.init(coder: coder)
@@ -67,15 +61,19 @@ import VideoToolbox
 
     public func onVideoFrameReceived(frame: VideoFrame) {
         if Thread.isMainThread {
-            renderOnMainThread(frame: frame)
+            renderFrame(frame: frame)
         } else {
             DispatchQueue.main.async {
-                self.renderOnMainThread(frame: frame)
+                self.renderFrame(frame: frame)
             }
         }
     }
 
-    private func renderOnMainThread(frame: VideoFrame) {
+    public func resetImage() {
+        imageView.image = nil
+    }
+
+    private func renderFrame(frame: VideoFrame) {
         guard let buffer = (frame.buffer as? VideoFramePixelBuffer)?.pixelBuffer else {
             return
         }

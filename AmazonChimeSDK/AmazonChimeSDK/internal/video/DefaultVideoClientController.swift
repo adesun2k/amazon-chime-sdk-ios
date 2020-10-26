@@ -34,7 +34,7 @@ class DefaultVideoClientController: NSObject {
     private let tokenHeader = "X-Chime-Auth-Token"
     private let tokenKey = "_aws_wt_session"
     private let turnRequestHttpMethod = "POST"
-    private let internalCaptureSource = DefaultCameraCaptureSource()
+    private let internalCaptureSource: DefaultCameraCaptureSource
     private var isInternalCaptureSourceRunning = true
 
     init(videoClient: VideoClient,
@@ -45,6 +45,7 @@ class DefaultVideoClientController: NSObject {
         self.clientMetricsCollector = clientMetricsCollector
         self.configuration = configuration
         self.logger = logger
+        self.internalCaptureSource = DefaultCameraCaptureSource(logger: logger)
         super.init()
     }
 
