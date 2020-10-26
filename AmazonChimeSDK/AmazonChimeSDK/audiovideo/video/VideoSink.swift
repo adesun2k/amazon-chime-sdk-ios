@@ -1,5 +1,5 @@
 //
-//  VideoSourceObserver.swift
+//  VideoSinkgit .swift
 //  AmazonChimeSDK
 //
 //  Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.

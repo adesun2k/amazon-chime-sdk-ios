@@ -24,7 +24,6 @@ import Foundation
     /// May be called regardless of whether `start` or `stop` has been called.
     var format: VideoCaptureFormat { get set }
 
-    /// Helper function to switch from front to back cameras or reverse.  This also switches from
-    /// any external cameras to the front camera.
+    /// Helper function to switch from front to back cameras or reverse. 
     func switchCamera()
 }

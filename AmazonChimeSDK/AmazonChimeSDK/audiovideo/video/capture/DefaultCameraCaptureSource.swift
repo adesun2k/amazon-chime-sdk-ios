@@ -1,5 +1,5 @@
 //
-//  DefaultCapturerVideoSource.swift
+//  DefaultCameraCaptureSource.swift
 //  AmazonChimeSDK
 //
 //  Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
@@ -18,7 +18,7 @@ import UIKit
     private let captureSourceObservers = ConcurrentMutableSet()
     private let output = AVCaptureVideoDataOutput()
     private let captureQueue = DispatchQueue(label: "captureQueue")
-    private static let defaultCaptureFormat = VideoCaptureFormat(width: (Constants.maxSupportedVideoHeight / 9) * 16,
+    private static let defaultCaptureFormat = VideoCaptureFormat(width: Constants.maxSupportedVideoWidth,
                                                                  height: Constants.maxSupportedVideoHeight,
                                                                  maxFrameRate: Constants.maxSupportedVideoFrameRate)
 

@@ -20,4 +20,5 @@ import Foundation
     static let dataMessageTopicRegex = "^[a-zA-Z0-9_-]{1,36}$"
     static let maxSupportedVideoFrameRate = 15
     static let maxSupportedVideoHeight = 720
+    static let maxSupportedVideoWidth = maxSupportedVideoHeight / 9 * 16
 }
