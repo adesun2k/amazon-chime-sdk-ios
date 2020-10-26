@@ -22,7 +22,7 @@ class VideoModel: NSObject {
 
     var videoUpdatedHandler: (() -> Void)?
     var localVideoUpdatedHandler: (() -> Void)?
-    let customSource = DefaultCameraCaptureSource()
+    let customSource = DefaultCameraCaptureSource(logger: ConsoleLogger(name: "CustomCameraSource"))
 
     init(audioVideoFacade: AudioVideoFacade) {
         self.audioVideoFacade = audioVideoFacade
