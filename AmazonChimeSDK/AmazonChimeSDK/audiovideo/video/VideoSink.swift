@@ -1,5 +1,5 @@
 //
-//  VideoSinkgit .swift
+//  VideoSink.swift
 //  AmazonChimeSDK
 //
 //  Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.

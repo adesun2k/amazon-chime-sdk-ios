@@ -50,7 +50,8 @@ import Foundation
         }
     }
 
-    /// List available `VideoCaptureFormat` from the video capture device
+    /// List available `VideoCaptureFormat` from the video capture device.
+    /// This methods returns an empty array for `MediaDevice` that's not used for video.
     /// - Parameter mediaDevice: Video capture device to query
     public static func listSupportedVideoCaptureFormats(mediaDevice: MediaDevice) -> [VideoCaptureFormat] {
         guard mediaDevice.type == .videoFrontCamera || mediaDevice.type == .videoBackCamera else {

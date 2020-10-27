@@ -81,15 +81,20 @@ import UIKit
     public var torchEnabled: Bool = false {
         didSet {
             if let captureDevice = captureDevice, captureDevice.hasTorch, captureDevice.isTorchAvailable {
-                try? captureDevice.lockForConfiguration()
-                if torchEnabled {
-                    captureDevice.torchMode = .on
-                } else {
-                    captureDevice.torchMode = .off
+                do {
+                    try captureDevice.lockForConfiguration()
+                    if torchEnabled {
+                        captureDevice.torchMode = .on
+                    } else {
+                        captureDevice.torchMode = .off
+                    }
+                    captureDevice.unlockForConfiguration()
+                } catch {
+                    logger.error(msg: "Unable to set torch mode on current camera. Error: \(error.localizedDescription)")
                 }
-                captureDevice.unlockForConfiguration()
             } else {
                 torchEnabled = false
+                logger.error(msg: "Torch is not available on current camera.")
             }
         }
     }
