@@ -34,6 +34,8 @@ class DefaultVideoClientController: NSObject {
     private let tokenHeader = "X-Chime-Auth-Token"
     private let tokenKey = "_aws_wt_session"
     private let turnRequestHttpMethod = "POST"
+
+    // This internal camera capture source is used for `startLocalVideo()` API without parameter.
     private let internalCaptureSource: DefaultCameraCaptureSource
     private var isInternalCaptureSourceRunning = true
 
@@ -382,7 +384,7 @@ extension DefaultVideoClientController: VideoClientController {
 
     public func startLocalVideo() throws {
         try checkVideoPermission()
-        setExternalVideoSource(source: internalCaptureSource)
+        setVideoSource(source: internalCaptureSource)
 
         logger.info(msg: "Starting local video with internal source")
         internalCaptureSource.start()
@@ -390,13 +392,13 @@ extension DefaultVideoClientController: VideoClientController {
     }
 
     public func startLocalVideo(source: VideoSource) {
-        setExternalVideoSource(source: source)
+        setVideoSource(source: source)
 
         logger.info(msg: "Starting local video with custom source")
         isInternalCaptureSourceRunning = false
     }
 
-    private func setExternalVideoSource(source: VideoSource) {
+    private func setVideoSource(source: VideoSource) {
         guard videoClientState != .uninitialized else {
             logger.fault(msg: "VideoClient is not initialized so returning without doing anything")
             return

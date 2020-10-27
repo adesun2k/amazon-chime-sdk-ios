@@ -11,14 +11,14 @@ import AmazonChimeSDKMedia
 import XCTest
 
 class VideoRotationTests: XCTestCase {
-    func testValue() {
+    func testRawValueShouldMatch() {
         XCTAssertEqual(VideoRotation.rotation0.rawValue, 0)
         XCTAssertEqual(VideoRotation.rotation90.rawValue, 90)
         XCTAssertEqual(VideoRotation.rotation180.rawValue, 180)
         XCTAssertEqual(VideoRotation.rotation270.rawValue, 270)
     }
 
-    func testToInternal() {
+    func testToInternalShouldMatchVideoRotationInternal() {
         XCTAssertEqual(VideoRotation.rotation0.toInternal, VideoRotationInternal.rotation0)
         XCTAssertEqual(VideoRotation.rotation90.toInternal, VideoRotationInternal.rotation90)
         XCTAssertEqual(VideoRotation.rotation180.toInternal, VideoRotationInternal.rotation180)

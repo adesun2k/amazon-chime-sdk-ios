@@ -2,8 +2,8 @@
 //  VideoSourceAdapter.swift
 //  AmazonChimeSDKMedia
 //
-//  Created by Smith, Henry on 9/28/20.
-//  Copyright © 2020 Amazon. All rights reserved.
+//  Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+//  SPDX-License-Identifier: Apache-2.0
 //
 
 import AmazonChimeSDKMedia

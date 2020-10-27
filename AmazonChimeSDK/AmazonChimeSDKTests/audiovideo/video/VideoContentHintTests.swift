@@ -11,7 +11,7 @@ import AmazonChimeSDKMedia
 import XCTest
 
 class VideoContentHintTests: XCTestCase {
-    func testToInternal() {
+    func testToInternalShouldMatchVideoContentHintInternal() {
         XCTAssertEqual(VideoContentHint.none.toInternal, VideoContentHintInternal.none)
         XCTAssertEqual(VideoContentHint.motion.toInternal, VideoContentHintInternal.motion)
         XCTAssertEqual(VideoContentHint.detail.toInternal, VideoContentHintInternal.detailed)

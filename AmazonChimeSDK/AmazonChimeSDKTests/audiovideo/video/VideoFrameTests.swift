@@ -10,7 +10,7 @@
 import XCTest
 
 class VideoFrameTests: XCTestCase {
-    func testInit() {
+    func testInitShoudPopulateProperties() {
         var cVPPixelBuffer: CVPixelBuffer?
         CVPixelBufferCreate(kCFAllocatorDefault, 3840, 2160, kCVPixelFormatType_32ARGB, nil, &cVPPixelBuffer)
         let buffer = VideoFramePixelBuffer(pixelBuffer: cVPPixelBuffer!)

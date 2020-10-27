@@ -294,7 +294,6 @@
 		C4C540652538C08D00427A84 /* VideoCaptureFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCaptureFormat.swift; sourceTree = "<group>"; };
 		C4EDDAAB253F46FF0028264A /* VideoCaptureFormatTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCaptureFormatTests.swift; sourceTree = "<group>"; };
 		C4EDDAAF253F4C4B0028264A /* CaptureSourceErrorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureSourceErrorTests.swift; sourceTree = "<group>"; };
-		C4EDDAB1253F4C7A0028264A /* DefaultCameraCaptureSourceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultCameraCaptureSourceTests.swift; sourceTree = "<group>"; };
 		C60D5592246509B900C2A278 /* Converters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Converters.swift; sourceTree = "<group>"; };
 		C60D5595246514B000C2A278 /* ConvertersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConvertersTests.swift; sourceTree = "<group>"; };
 		C6C2F105250BF522001678B8 /* DefaultDeviceControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultDeviceControllerTests.swift; sourceTree = "<group>"; };
@@ -784,7 +783,6 @@
 			children = (
 				C4EDDAAB253F46FF0028264A /* VideoCaptureFormatTests.swift */,
 				C4EDDAAF253F4C4B0028264A /* CaptureSourceErrorTests.swift */,
-				C4EDDAB1253F4C7A0028264A /* DefaultCameraCaptureSourceTests.swift */,
 			);
 			path = capture;
 			sourceTree = "<group>";
@@ -933,7 +931,7 @@
 			files = (
 			);
 			inputPaths = (
-				"/tmp/Mockingbird-89695FC3-6668-4D6D-B234-82C22D21C360",
+				"/tmp/Mockingbird-4CA1EDA4-26DB-4CE4-842C-4A942ABCFE0C",
 			);
 			name = "Generate Mockingbird Mocks";
 			outputPaths = (
@@ -941,7 +939,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "set -e\n\nmockingbird generate \\\n  --targets 'AmazonChimeSDK' \\\n  --outputs \"${SRCROOT}/MockingbirdMocks/AmazonChimeSDKTests-AmazonChimeSDKMocks.generated.swift\"\n\n# Ensure mocks are generated prior to running Compile Sources\nrm -f '/tmp/Mockingbird-89695FC3-6668-4D6D-B234-82C22D21C360'\n";
+			shellScript = "set -e\n\nmockingbird generate \\\n  --targets 'AmazonChimeSDK' \\\n  --outputs \"${SRCROOT}/MockingbirdMocks/AmazonChimeSDKTests-AmazonChimeSDKMocks.generated.swift\"\n\n# Ensure mocks are generated prior to running Compile Sources\nrm -f '/tmp/Mockingbird-4CA1EDA4-26DB-4CE4-842C-4A942ABCFE0C'\n";
 		};
 		114854BF06996650440AB080 /* Clean Mockingbird Mocks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -952,11 +950,11 @@
 			);
 			name = "Clean Mockingbird Mocks";
 			outputPaths = (
-				"/tmp/Mockingbird-89695FC3-6668-4D6D-B234-82C22D21C360",
+				"/tmp/Mockingbird-4CA1EDA4-26DB-4CE4-842C-4A942ABCFE0C",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "echo $RANDOM > '/tmp/Mockingbird-89695FC3-6668-4D6D-B234-82C22D21C360'\n";
+			shellScript = "echo $RANDOM > '/tmp/Mockingbird-4CA1EDA4-26DB-4CE4-842C-4A942ABCFE0C'\n";
 		};
 		5A3CFC6423C52B5D00BB63B7 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;

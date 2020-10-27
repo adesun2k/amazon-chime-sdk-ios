@@ -67,7 +67,8 @@ import Foundation
         var supportedFormats: [VideoCaptureFormat] = []
         for avFormat in device.formats {
             var format = getVideoCaptureFormat(from: avFormat)
-            if format.height > Constants.maxSupportedVideoHeight {
+            if format.height > Constants.maxSupportedVideoHeight
+                || format.width > Constants.maxSupportedVideoWidth {
                 continue
             }
             if format.maxFrameRate > Constants.maxSupportedVideoFrameRate {
@@ -86,10 +87,11 @@ import Foundation
     /// - Parameter avFormat: format from the `AVCaptureDevice`
     public static func getVideoCaptureFormat(from avFormat: AVCaptureDevice.Format) -> VideoCaptureFormat {
         let dimensions = CMVideoFormatDescriptionGetDimensions(avFormat.formatDescription)
-        let frameRateRange = avFormat.videoSupportedFrameRateRanges.first
         var maxFPS = Constants.maxSupportedVideoFrameRate
-        if let fps = frameRateRange?.maxFrameRate {
-            maxFPS = Int(fps)
+        let frameRateRanges = avFormat.videoSupportedFrameRateRanges
+        let range = frameRateRanges.min { Int($0.maxFrameRate) < Int($1.maxFrameRate) }
+        if let range = range {
+            maxFPS = Int(range.maxFrameRate)
         }
         return VideoCaptureFormat(width: Int(dimensions.width),
                                   height: Int(dimensions.height),
