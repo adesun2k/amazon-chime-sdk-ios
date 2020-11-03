@@ -289,7 +289,6 @@ class MeetingModel: NSObject {
             if success {
                 // See comments above isUsingExternalVideoSource
                 if self.isUsingExternalVideoSource {
-                    self.videoModel.customSource.device = self.deviceSelectionModel.selectedVideoDevice
                     var customSource: VideoSource = self.videoModel.customSource
                     customSource.removeVideoSink(sink: self.coreImageVideoProcessor)
                     if let metalVideoProcessor = self.metalVideoProcessor {
@@ -302,8 +301,8 @@ class MeetingModel: NSObject {
                         customSource.addVideoSink(sink: metalVideoProcessor)
                         customSource = metalVideoProcessor
                     }
-                    self.videoModel.customSource.start()
                     self.currentMeetingSession.audioVideo.startLocalVideo(source: customSource)
+                    self.videoModel.customSource.start()
                 } else {
                     do {
                         try self.currentMeetingSession.audioVideo.startLocalVideo()
