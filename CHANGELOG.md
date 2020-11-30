@@ -1,3 +1,16 @@
+## Unreleased
+### Added
+* Added `ContentShareController`, `ContentShareObserver`, `ContentShareSource`, `ContentShareStatus`, `ContentShareStatusCode` to start and stop sharing a 2nd video only stream.
+* Added `DefaultContentShareController` implementation of `ContentShareController`.
+* Added `DefaultScreenCaptureSource` and `InAppScreenCaptureSource` implementation of `VideoCaptureSource`, which can be used as `VideoSource` in `ContentShareSource`.
+* Added internal `ContentShareClientController` and `DefaultContentShareClientController` that utilize 2nd `VideoClient` to share content video stream.
+* Added in app only screen share to demo app.
+* Added `AmazonChimeSDKDemoBroadcast` Broadcast Extension to the demo app to share device level screen.
+
+### Changed
+* **Breaking** `AudioVideoFacade` now also implements `ContentShareController`
+* **Breaking** `DefaultAudioVideoFacade` init requires a `ContentShareController` instance.
+
 ## [0.12.1] - 2020-11-20
 
 ## [0.12.0] - 2020-11-17
