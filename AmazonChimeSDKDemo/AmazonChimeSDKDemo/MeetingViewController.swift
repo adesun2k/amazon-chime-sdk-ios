@@ -5,11 +5,13 @@
 //  Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //  SPDX-License-Identifier: Apache-2.0
 //
+// swiftlint:disable type_body_length
 
 import AmazonChimeSDK
 import AVFoundation
 import CallKit
 import Foundation
+import ReplayKit
 import Toast
 import UIKit
 
@@ -18,6 +20,7 @@ class MeetingViewController: UIViewController {
     @IBOutlet var controlView: UIView!
     @IBOutlet var cameraButton: UIButton!
     @IBOutlet var deviceButton: UIButton!
+    @IBOutlet var broadcastPickerView: UIView!
     @IBOutlet var additionalOptionsButton: UIButton!
     @IBOutlet var endButton: UIButton!
     @IBOutlet var muteButton: UIButton!
@@ -172,7 +175,12 @@ class MeetingViewController: UIViewController {
         titleLabel.accessibilityLabel = "Meeting ID \(meetingModel?.meetingId ?? "")"
 
         // Buttons
-        let buttonStack = [muteButton, deviceButton, cameraButton, additionalOptionsButton, endButton, sendMessageButton]
+        let buttonStack = [muteButton,
+                           deviceButton,
+                           cameraButton,
+                           additionalOptionsButton,
+                           endButton,
+                           sendMessageButton]
         for button in buttonStack {
             let normalButtonImage = button?.image(for: .normal)?.withRenderingMode(.alwaysTemplate)
             let selectedButtonImage = button?.image(for: .selected)?.withRenderingMode(.alwaysTemplate)
@@ -209,6 +217,69 @@ class MeetingViewController: UIViewController {
         chatMessageTable.separatorStyle = .none
         sendMessageButton.imageView?.contentMode = UIView.ContentMode.scaleAspectFit
         setupHideKeyboardOnTap()
+        #if !targetEnvironment(simulator)
+        if #available(iOS 12.0, *) {
+            setupBroadcastPickerView()
+        }
+        #endif
+    }
+
+    // RPSystemBroadcastPickerView
+    @available(iOS 12.0, *)
+    private func setupBroadcastPickerView() {
+        let pickerView = RPSystemBroadcastPickerView(frame: CGRect(x: 0,
+                                                                   y: 0,
+                                                                   width: 80,
+                                                                   height: 80))
+        pickerView.translatesAutoresizingMaskIntoConstraints = false
+        pickerView.preferredExtension = "com.amazonaws.services.chime.SDKDemo.AmazonChimeSDKDemoBroadcast"
+        // Microphone audio is passed through AudioVideoControllerFacade instead of ContentShareController
+        pickerView.showsMicrophoneButton = false
+        if let button = pickerView.subviews.first as? UIButton {
+            button.imageView?.tintColor = UIColor.red
+        }
+        view.addSubview(pickerView)
+        broadcastPickerView = pickerView
+        // We add this action to turn off in app content sharing when user attemp to use broadcast
+        for subview in broadcastPickerView.subviews {
+            if let button = subview as? UIButton {
+                button.addTarget(self, action: #selector(broadcastButtonTapped), for: .touchUpInside)
+            }
+        }
+
+        let left = NSLayoutConstraint(item: pickerView,
+                                         attribute: NSLayoutConstraint.Attribute.left,
+                                         relatedBy: NSLayoutConstraint.Relation.equal,
+                                         toItem: cameraButton,
+                                         attribute: NSLayoutConstraint.Attribute.right,
+                                         multiplier: 1,
+                                         constant: 10)
+        view.addConstraint(left)
+        let right = NSLayoutConstraint(item: pickerView,
+                                         attribute: NSLayoutConstraint.Attribute.right,
+                                         relatedBy: NSLayoutConstraint.Relation.equal,
+                                         toItem: additionalOptionsButton,
+                                         attribute: NSLayoutConstraint.Attribute.left,
+                                         multiplier: 1,
+                                         constant: -10)
+        view.addConstraint(right)
+        let top = NSLayoutConstraint(item: pickerView,
+                                       attribute: NSLayoutConstraint.Attribute.top,
+                                       relatedBy: NSLayoutConstraint.Relation.equal,
+                                       toItem: cameraButton,
+                                       attribute: NSLayoutConstraint.Attribute.top,
+                                       multiplier: 1,
+                                       constant: 0)
+        view.addConstraint(top)
+        let bottom = NSLayoutConstraint(item: pickerView,
+                                        attribute: NSLayoutConstraint.Attribute.bottom,
+                                        relatedBy: NSLayoutConstraint.Relation.equal,
+                                        toItem: cameraButton,
+                                        attribute: NSLayoutConstraint.Attribute.bottom,
+                                        multiplier: 1,
+                                        constant: 0)
+        view.addConstraint(bottom)
+        view.bringSubviewToFront(pickerView)
     }
 
     private func switchSubview(mode: MeetingModel.ActiveMode) {
@@ -320,6 +391,14 @@ class MeetingViewController: UIViewController {
                                                handler: { _ in self.toggleCustomCameraSource() })
         optionMenu.addAction(customSourceAction)
 
+        #if !targetEnvironment(simulator)
+        let nextInAppContentshareStatus = meetingModel.screenShareModel.isInAppContentShareActive ? "off" : "on"
+        let inAppContentShareAction = UIAlertAction(title: "Turn \(nextInAppContentshareStatus) in app content share",
+                                               style: .default,
+                                               handler: { _ in self.toggleInAppContentShare() })
+        optionMenu.addAction(inAppContentShareAction)
+        #endif
+
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
         optionMenu.addAction(cancelAction)
 
@@ -364,8 +443,8 @@ class MeetingViewController: UIViewController {
     }
 
     @IBAction func cameraButtonClicked(_: UIButton) {
-        cameraButton.isSelected = !cameraButton.isSelected
-        meetingModel?.isLocalVideoActive = cameraButton.isSelected
+        cameraButton.isSelected.toggle()
+        meetingModel?.videoModel.isLocalVideoActive = cameraButton.isSelected
     }
 
     @IBAction func leaveButtonClicked(_: UIButton) {
@@ -423,12 +502,28 @@ class MeetingViewController: UIViewController {
         self.inputBoxBottomConstrain.constant = 0
     }
 
+    @objc private func broadcastButtonTapped() {
+        meetingModel?.screenShareModel.isInAppContentShareActive = false
+    }
+
+    @objc private func toggleInAppContentShare() {
+        logger.info(msg: "Toggling torch")
+        guard let meetingModel = meetingModel else {
+            return
+        }
+        if #available(iOS 11.0, *) {
+            meetingModel.screenShareModel.isInAppContentShareActive.toggle()
+        } else {
+            meetingModel.notifyHandler?("In App Content Share is only available on iOS 11+")
+        }
+    }
+
     @objc private func toggleTorch() {
         logger.info(msg: "Toggling torch")
         guard let meetingModel = meetingModel else {
             return
         }
-        if !meetingModel.isUsingExternalVideoSource {
+        if !meetingModel.videoModel.isUsingExternalVideoSource {
             meetingModel.notifyHandler?("Cannot toggle flashlight without using custom camera capture source")
             return
         }
@@ -442,16 +537,16 @@ class MeetingViewController: UIViewController {
         guard let meetingModel = meetingModel else {
             return
         }
-        if !meetingModel.isUsingExternalVideoSource {
+        if !meetingModel.videoModel.isUsingExternalVideoSource {
             meetingModel.notifyHandler?("Cannot toggle filters without using custom camera capture source")
             return
         }
-        if meetingModel.isUsingMetalVideoProcessor {
+        if meetingModel.videoModel.isUsingMetalVideoProcessor {
             meetingModel.notifyHandler?("Cannot toggle both filters on at same time")
             return
         }
 
-        meetingModel.isUsingCoreImageVideoProcessor = !meetingModel.isUsingCoreImageVideoProcessor
+        meetingModel.videoModel.isUsingCoreImageVideoProcessor.toggle()
     }
 
     @objc private func toggleMetalFilter() {
@@ -464,16 +559,16 @@ class MeetingViewController: UIViewController {
             meetingModel.notifyHandler?("Cannot toggle Metal filter because it's not available on this device")
             return
         }
-        if !meetingModel.isUsingExternalVideoSource {
+        if !meetingModel.videoModel.isUsingExternalVideoSource {
             meetingModel.notifyHandler?("Cannot toggle filters without using custom camera capture source")
             return
         }
-        if meetingModel.isUsingCoreImageVideoProcessor {
+        if meetingModel.videoModel.isUsingCoreImageVideoProcessor {
             meetingModel.notifyHandler?("Cannot toggle both filters on at same time")
             return
         }
 
-        meetingModel.isUsingMetalVideoProcessor = !meetingModel.isUsingMetalVideoProcessor
+        meetingModel.videoModel.isUsingMetalVideoProcessor.toggle()
     }
 
     @objc private func toggleCustomCameraSource() {
@@ -481,7 +576,7 @@ class MeetingViewController: UIViewController {
         guard let meetingModel = meetingModel else {
             return
         }
-        meetingModel.isUsingExternalVideoSource = !meetingModel.isUsingExternalVideoSource
+        meetingModel.videoModel.isUsingExternalVideoSource.toggle()
     }
 }
 
@@ -552,7 +647,7 @@ extension MeetingViewController: UICollectionViewDataSource {
         cell.delegate = meetingModel.videoModel
 
         if let tileState = videoTileState {
-            if tileState.isLocalTile, meetingModel.isFrontCameraActive {
+            if tileState.isLocalTile, !tileState.isContent, meetingModel.videoModel.isFrontCameraActive {
                 cell.videoRenderView.mirror = true
             }
             meetingModel.bind(videoRenderView: cell.videoRenderView, tileId: tileState.tileId)
