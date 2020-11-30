@@ -80,12 +80,7 @@ class DefaultAudioVideoControllerTests: XCTestCase {
             joinToken: self.meetingSessionConfigurationMock.credentials.joinToken,
             callKitEnabled: false
         )).wasCalled()
-        verify(videoClientControllerMock.start(
-            turnControlUrl: self.meetingSessionConfigurationMock.urls.turnControlUrl,
-            signalingUrl: self.meetingSessionConfigurationMock.urls.signalingUrl,
-            meetingId: self.meetingSessionConfigurationMock.meetingId,
-            joinToken: self.meetingSessionConfigurationMock.credentials.joinToken
-        )).wasCalled()
+        verify(videoClientControllerMock.start()).wasCalled()
     }
 
     func testStart_callKitEnabled() {
@@ -100,12 +95,7 @@ class DefaultAudioVideoControllerTests: XCTestCase {
             joinToken: self.meetingSessionConfigurationMock.credentials.joinToken,
             callKitEnabled: callKitEnabled
         )).wasCalled()
-        verify(videoClientControllerMock.start(
-            turnControlUrl: self.meetingSessionConfigurationMock.urls.turnControlUrl,
-            signalingUrl: self.meetingSessionConfigurationMock.urls.signalingUrl,
-            meetingId: self.meetingSessionConfigurationMock.meetingId,
-            joinToken: self.meetingSessionConfigurationMock.credentials.joinToken
-        )).wasCalled()
+        verify(videoClientControllerMock.start()).wasCalled()
     }
 
     func testStop() {
