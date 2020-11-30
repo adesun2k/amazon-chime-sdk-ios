@@ -76,10 +76,10 @@ class VideoTileCell: UICollectionViewCell {
     }
 
     @objc func onTileButtonClicked(_ sender: UIButton) {
-        sender.isSelected = !sender.isSelected
+        sender.isSelected.toggle()
         delegate?.onTileButtonClicked(tag: sender.tag, selected: sender.isSelected)
         if sender.tag == 0 {
-            videoRenderView.mirror = !videoRenderView.mirror
+            videoRenderView.mirror.toggle()
         }
     }
 }

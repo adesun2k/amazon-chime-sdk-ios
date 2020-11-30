@@ -18,6 +18,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
 
+    func applicationWillTerminate(_ application: UIApplication) {
+        // If app is being force killed while CallKit integrated meeting is in progress,
+        // provider(_: CXProvider, perform action: CXEndCallAction) will not be called.
+        // So we need to invoke isEndedHandler() directly.
+        if let call = MeetingModule.shared().activeMeeting?.call {
+            call.isEndedHandler?()
+        } else {
+            MeetingModule.shared().endActiveMeeting {}
+        }
+    }
+
     // MARK: UISceneSession Lifecycle
 
     @available(iOS 13.0, *)

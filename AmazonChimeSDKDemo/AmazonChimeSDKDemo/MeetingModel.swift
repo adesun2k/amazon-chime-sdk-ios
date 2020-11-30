@@ -35,7 +35,8 @@ class MeetingModel: NSObject {
     let rosterModel = RosterModel()
     lazy var videoModel = VideoModel(audioVideoFacade: currentMeetingSession.audioVideo)
     let metricsModel = MetricsModel()
-    let screenShareModel = ScreenShareModel()
+    lazy var screenShareModel = ScreenShareModel(meetingSessionConfig: meetingSessionConfig,
+                                                 contentShareController: currentMeetingSession.audioVideo)
     let chatModel = ChatModel()
     lazy var deviceSelectionModel = DeviceSelectionModel(deviceController: currentMeetingSession.audioVideo,
                                                          cameraCaptureSource: videoModel.customSource)
@@ -74,40 +75,11 @@ class MeetingModel: NSObject {
     private var isEnded = false {
         didSet {
             currentMeetingSession.audioVideo.stop()
+            screenShareModel.isInAppContentShareActive = false
             videoModel.customSource.stop()
             videoModel.customSource.torchEnabled = false
+            screenShareModel.deleteMeetingSessionConfigFromUserDefaults()
             isEndedHandler?()
-        }
-    }
-
-    // To facilitate demoing and testing both use cases, we account for both our external
-    // camera and the camera managed by the facade. Actual applications should
-    // only use one or the other
-    var isUsingExternalVideoSource = true {
-        didSet {
-            if isLocalVideoActive {
-                startLocalVideo()
-            }
-        }
-    }
-
-    private let coreImageVideoProcessor = CoreImageVideoProcessor()
-    var isUsingCoreImageVideoProcessor = false {
-        didSet {
-            if isLocalVideoActive {
-                startLocalVideo()
-            }
-        }
-    }
-
-    // See comments in MetalVideoProcessor
-    private let metalVideoProcessor = MetalVideoProcessor()
-
-    var isUsingMetalVideoProcessor = false {
-        didSet {
-            if isLocalVideoActive {
-                startLocalVideo()
-            }
         }
     }
 
@@ -119,34 +91,17 @@ class MeetingModel: NSObject {
         return currentMeetingSession.audioVideo.getActiveAudioDevice()
     }
 
-    var isLocalVideoActive = false {
-        willSet(isLocalVideoActive) {
-            if isLocalVideoActive {
-                startLocalVideo()
-            } else {
-                stopLocalVideo()
-            }
-        }
-    }
-
-    var isFrontCameraActive: Bool {
-        // See comments above isUsingExternalVideoSource
-        if let internalCamera = currentMeetingSession.audioVideo.getActiveCamera() {
-            return internalCamera.type == .videoFrontCamera
-        }
-        if let activeCamera = videoModel.customSource.device {
-            return activeCamera.type == .videoFrontCamera
-        }
-        return false
-    }
-
     // Handlers
     var activeModeDidSetHandler: ((ActiveMode) -> Void)?
     var notifyHandler: ((String) -> Void)?
     var isMutedHandler: ((Bool) -> Void)?
     var isEndedHandler: (() -> Void)?
 
-    init(meetingSessionConfig: MeetingSessionConfiguration, meetingId: String, selfName: String, callKitOption: CallKitOption) {
+    init(meetingSessionConfig: MeetingSessionConfiguration,
+         meetingId: String,
+         selfName: String,
+         callKitOption: CallKitOption) {
+
         self.meetingId = meetingId
         self.selfName = selfName
         self.callKitOption = callKitOption
@@ -170,6 +125,7 @@ class MeetingModel: NSObject {
             self.startAudioVideoConnection(isCallKitEnabled: false)
             self.currentMeetingSession.audioVideo.startRemoteVideo()
         }
+        screenShareModel.saveMeetingSessionConfigToUserDefaults()
     }
 
     func resumeCallKitMeeting() {
@@ -211,7 +167,7 @@ class MeetingModel: NSObject {
     func getVideoTileDisplayName(for indexPath: IndexPath) -> String {
         var displayName = ""
         if indexPath.item == 0 {
-            if isLocalVideoActive {
+            if videoModel.isLocalVideoActive {
                 displayName = selfName
             } else {
                 displayName = "Turn on your video"
@@ -296,47 +252,6 @@ class MeetingModel: NSObject {
         } catch {
             logger.error(msg: "Error starting the Meeting: \(error.localizedDescription)")
             endMeeting()
-        }
-    }
-
-    private func startLocalVideo() {
-        MeetingModule.shared().requestVideoPermission { success in
-            if success {
-                // See comments above isUsingExternalVideoSource
-                if self.isUsingExternalVideoSource {
-                    var customSource: VideoSource = self.videoModel.customSource
-                    customSource.removeVideoSink(sink: self.coreImageVideoProcessor)
-                    if let metalVideoProcessor = self.metalVideoProcessor {
-                        customSource.removeVideoSink(sink: metalVideoProcessor)
-                    }
-                    if self.isUsingCoreImageVideoProcessor {
-                        customSource.addVideoSink(sink: self.coreImageVideoProcessor)
-                        customSource = self.coreImageVideoProcessor
-                    } else if self.isUsingMetalVideoProcessor, let metalVideoProcessor = self.metalVideoProcessor {
-                        customSource.addVideoSink(sink: metalVideoProcessor)
-                        customSource = metalVideoProcessor
-                    }
-                    self.currentMeetingSession.audioVideo.startLocalVideo(source: customSource)
-                    if (!self.isLocalVideoActive) {
-                        // Only start capturer if it is not already running
-                        self.videoModel.customSource.start()
-                    }
-                } else {
-                    do {
-                        try self.currentMeetingSession.audioVideo.startLocalVideo()
-                    } catch {
-                        self.logger.error(msg: "Error starting local video: \(error.localizedDescription)")
-                    }
-                }
-            }
-        }
-    }
-
-    private func stopLocalVideo() {
-        currentMeetingSession.audioVideo.stopLocalVideo()
-        // See comments above isUsingExternalVideoSource
-        if isUsingExternalVideoSource {
-            self.videoModel.customSource.stop()
         }
     }
 
