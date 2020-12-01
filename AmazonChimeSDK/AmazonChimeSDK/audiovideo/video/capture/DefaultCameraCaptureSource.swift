@@ -92,7 +92,7 @@ import UIKit
                 }
             } else {
                 torchEnabled = false
-                logger.error(msg: "Torch is not available on current camera.")
+                logger.info(msg: "Torch is not available on current camera.")
             }
         }
     }

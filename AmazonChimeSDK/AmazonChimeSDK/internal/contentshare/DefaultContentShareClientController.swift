@@ -22,6 +22,7 @@ import Foundation
         config.isUsing16by9AspectRatio = true
         config.isUsingPixelBufferRenderer = true
         config.isUsingOptimizedTwoSimulcastStreamTable = true
+        config.isContentShare = true
         return config
     }()
 
