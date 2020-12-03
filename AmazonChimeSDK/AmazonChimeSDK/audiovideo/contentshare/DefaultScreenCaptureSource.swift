@@ -19,10 +19,11 @@ import ReplayKit
     let logger: Logger
     let observers = ConcurrentMutableSet()
 
-    private let resendTimeInterval = CMTime(value: CMTimeValue(Constants.millisecondsPerSecond /
+    private let pixelBufferLockFlagReadOnly = CVPixelBufferLockFlags(rawValue: 0)
+    private let resendTimeIntervalMs = CMTime(value: CMTimeValue(Constants.millisecondsPerSecond /
                                                                 Constants.maxSupportedVideoFrameRate),
                                             timescale: CMTimeScale(Constants.millisecondsPerSecond))
-    private let resendScheduleLeeway = DispatchTimeInterval.milliseconds(20)
+    private let resendScheduleLeewayMs = DispatchTimeInterval.milliseconds(20)
     private let sinks = ConcurrentMutableSet()
     private let resendQueue = DispatchQueue.global()
 
@@ -36,6 +37,8 @@ import ReplayKit
         super.init()
     }
 
+    // For device level screen broadcast, app is responsible for starting the Broadcast Extension.
+    // This method is overwritten in InAppScreenCaptureSource for In App only use case.
     public func start() {
     }
 
@@ -68,19 +71,20 @@ import ReplayKit
         // drop frame if the time difference is smaller than resendTimeInterval
         if let lastTransmitTimestamp = self.lastSendTimestamp {
             let delta = CMTimeSubtract(currentTimestamp, lastTransmitTimestamp)
-            if delta < resendTimeInterval {
+            if delta < resendTimeIntervalMs {
                 return
             }
         }
 
-        deliverFrame(sampleBuffer: sampleBuffer)
+        sendFrame(sampleBuffer: sampleBuffer)
     }
 
-    func deliverFrame(sampleBuffer: CMSampleBuffer) {
+    private func sendFrame(sampleBuffer: CMSampleBuffer) {
         guard CMSampleBufferGetNumSamples(sampleBuffer) == 1,
               CMSampleBufferIsValid(sampleBuffer),
               CMSampleBufferDataIsReady(sampleBuffer),
               let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
+
             ObserverUtils.forEach(observers: observers) { (observer: CaptureSourceObserver) in
                 observer.captureDidFail(error: .invalidFrame)
             }
@@ -88,7 +92,7 @@ import ReplayKit
             return
         }
 
-        CVPixelBufferLockBaseAddress(pixelBuffer, CVPixelBufferLockFlags(rawValue: 0))
+        CVPixelBufferLockBaseAddress(pixelBuffer, pixelBufferLockFlagReadOnly)
 
         var videoRotation = VideoRotation.rotation0
         // RPVideoSampleOrientationKey is only available on iOS 11+
@@ -120,13 +124,13 @@ import ReplayKit
                 sink.onVideoFrameReceived(frame: frame)
             }
         }
-        CVPixelBufferUnlockBaseAddress(pixelBuffer, CVPixelBufferLockFlags(rawValue: 0))
+        CVPixelBufferUnlockBaseAddress(pixelBuffer, pixelBufferLockFlagReadOnly)
 
         lastSendTimestamp = CMClockGetTime(CMClockGetHostTimeClock())
         scheduleResendFrame()
     }
 
-    func scheduleResendFrame() {
+    private func scheduleResendFrame() {
         let source = DispatchSource.makeTimerSource(flags: .strict, queue: resendQueue)
         resendTimer = source
 
@@ -143,14 +147,14 @@ import ReplayKit
                 let delta = CMTimeSubtract(currentTimestamp, lastHostTimestamp)
 
                 // Resend the last input frame if there is no new input frame after resendTimeInterval
-                if delta > strongSelf.resendTimeInterval {
-                    strongSelf.deliverFrame(sampleBuffer: frame)
+                if delta > strongSelf.resendTimeIntervalMs {
+                    strongSelf.sendFrame(sampleBuffer: frame)
                 } else {
                     // Reset resending schedule if there is an input frame between internals
-                    let remaining = strongSelf.resendTimeInterval.seconds - delta.seconds
-                    let deadline = DispatchTime.now() + DispatchTimeInterval.milliseconds(Int(remaining *
+                    let remainingMs = strongSelf.resendTimeIntervalMs.seconds - delta.seconds
+                    let deadline = DispatchTime.now() + DispatchTimeInterval.milliseconds(Int(remainingMs *
                                                                Double(Constants.millisecondsPerSecond)))
-                    strongSelf.resendTimer?.schedule(deadline: deadline, leeway: strongSelf.resendScheduleLeeway)
+                    strongSelf.resendTimer?.schedule(deadline: deadline, leeway: strongSelf.resendScheduleLeewayMs)
                 }
             }
         })
@@ -161,7 +165,7 @@ import ReplayKit
 
         let deadline = DispatchTime.now() + DispatchTimeInterval.milliseconds(Constants.millisecondsPerSecond /
                                                                                 Constants.maxSupportedVideoFrameRate)
-        source.schedule(deadline: deadline, leeway: resendScheduleLeeway)
+        source.schedule(deadline: deadline, leeway: resendScheduleLeewayMs)
         source.activate()
     }
 }

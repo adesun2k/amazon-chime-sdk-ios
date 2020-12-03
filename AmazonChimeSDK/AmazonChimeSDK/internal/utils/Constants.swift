@@ -10,7 +10,6 @@ import AmazonChimeSDKMedia
 import Foundation
 
 @objcMembers class Constants: NSObject {
-    static let modality = "#content"
     static let videoClientStatusCallAtCapacityViewOnly = 206
     static let nanosecondsPerSecond = 1_000_000_000
     static let millisecondsPerSecond = 1000

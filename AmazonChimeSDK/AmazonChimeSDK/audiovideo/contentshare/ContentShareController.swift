@@ -11,12 +11,14 @@ import Foundation
 /// `ContentShareController` exposes methods for starting and stopping content share with a source.
 @objc public protocol ContentShareController {
     /// Start sharing the content of a given `ContentShareSource`.
+    ///
     /// Once sharing has started successfully, `ContentShareObserver.contentShareDidStart` will
     /// be notified. If sharing fails or stops, `ContentShareObserver.contentShareDidStop`
     /// will be notified with `ContentShareStatus` as the cause.
-    /// Repeatedly calling this API will stop previous content share source if applicable and start the given source.
+    /// Calling this function repeatedly will replace the previous `ContentShareSource` as the one being transmitted.
+    ///
     /// - Parameter source: source of content to be shared
-    func startContentShare(contentShareSource: ContentShareSource)
+    func startContentShare(source: ContentShareSource)
 
     /// Stop sharing the content of a `ContentShareSource` that previously started.
     /// Once the sharing stops successfully, `ContentShareObserver.contentShareDidStop`

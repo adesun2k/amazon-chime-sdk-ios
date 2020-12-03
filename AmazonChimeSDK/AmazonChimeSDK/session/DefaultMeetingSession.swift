@@ -50,8 +50,17 @@ import Foundation
             DefaultActiveSpeakerDetector(audioClientObserver: audioClientObserver,
                                          selfAttendeeId: configuration.credentials.attendeeId)
 
-        let contentShareController = DefaultContentShareController(configuration: configuration,
-                                                                   logger: logger)
+        let contentModality = String(DefaultModality.separator) + ModalityType.content.description
+        let contentShareCredentials = MeetingSessionCredentials(
+            attendeeId: configuration.credentials.attendeeId + contentModality,
+            externalUserId: configuration.credentials.externalUserId,
+            joinToken: configuration.credentials.joinToken + contentModality)
+        let contentShareConfiguration = MeetingSessionConfiguration(meetingId: configuration.meetingId,
+                                                                    credentials: contentShareCredentials,
+                                                                    urls: configuration.urls,
+                                                                    urlRewriter: configuration.urlRewriter)
+        let contentShareVideoClientController = DefaultContentShareVideoClientController(configuration: contentShareConfiguration, logger: logger)
+        let contentShareController = DefaultContentShareController(contentShareVideoClientController: contentShareVideoClientController)
 
         self.audioVideo =
             DefaultAudioVideoFacade(audioVideoController:

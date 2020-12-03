@@ -121,7 +121,7 @@ import UIKit
 
         if let attendeeId = attendeeId {
             thisAttendeeId = attendeeId
-            isLocalTile = (attendeeId == selfAttendeeId + Constants.modality)
+            isLocalTile = (DefaultModality(id: attendeeId).base == selfAttendeeId)
         } else {
             thisAttendeeId = selfAttendeeId
             isLocalTile = true

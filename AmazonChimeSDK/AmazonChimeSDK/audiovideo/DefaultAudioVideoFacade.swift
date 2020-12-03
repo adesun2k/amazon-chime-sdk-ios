@@ -200,8 +200,8 @@ import Foundation
 
     // MARK: ContentShareController
 
-    public func startContentShare(contentShareSource: ContentShareSource) {
-        contentShareController.startContentShare(contentShareSource: contentShareSource)
+    public func startContentShare(source: ContentShareSource) {
+        contentShareController.startContentShare(source: source)
     }
 
     public func stopContentShare() {

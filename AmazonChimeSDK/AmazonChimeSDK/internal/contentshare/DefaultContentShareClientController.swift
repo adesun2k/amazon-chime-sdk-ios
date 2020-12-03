@@ -9,44 +9,33 @@
 import AmazonChimeSDKMedia
 import Foundation
 
-@objcMembers public class DefaultContentShareClientController: NSObject, ContentShareClientController {
+@objcMembers public class DefaultContentShareVideoClientController: NSObject, ContentShareVideoClientController {
     private let configuration: MeetingSessionConfiguration
     private let videoClient: VideoClient
     private let logger: Logger
     private let contentShareObservers = ConcurrentMutableSet()
     private let videoSourceAdapter = VideoSourceAdapter()
-    private let turnRequestJoinToken: String
     private var isSharing = false
     private let videoConfig: VideoConfiguration = {
         let config = VideoConfiguration()
         config.isUsing16by9AspectRatio = true
         config.isUsingPixelBufferRenderer = true
         config.isUsingOptimizedTwoSimulcastStreamTable = true
-        config.isContentShare = true
         return config
     }()
 
     public init(configuration: MeetingSessionConfiguration, logger: Logger) {
-        let contentShareCredentials = MeetingSessionCredentials(
-            attendeeId: configuration.credentials.attendeeId + Constants.modality,
-            externalUserId: configuration.credentials.externalUserId,
-            joinToken: configuration.credentials.joinToken + Constants.modality)
-        let contentShareConfiguration = MeetingSessionConfiguration(meetingId: configuration.meetingId,
-                                                                    credentials: contentShareCredentials,
-                                                                    urls: configuration.urls,
-                                                                    urlRewriter: configuration.urlRewriter)
-        self.configuration = contentShareConfiguration
+        self.configuration = configuration
         self.logger = logger
         videoClient = DefaultVideoClient(logger: logger)
-        turnRequestJoinToken = configuration.credentials.joinToken
         super.init()
         videoClient.delegate = self
         videoClient.setReceiving(false)
     }
 
-    public func startVideoSharing(source: VideoSource) {
+    public func startVideoShare(source: VideoSource) {
         if isSharing {
-            stopVideoSharing()
+            stopVideoShare()
         }
         startVideoClient()
         videoSourceAdapter.source = source
@@ -58,7 +47,7 @@ import Foundation
         isSharing = true
     }
 
-    public func stopVideoSharing() {
+    public func stopVideoShare() {
         videoClient.setSending(false)
         stopVideoClient()
         isSharing = false
@@ -85,14 +74,15 @@ import Foundation
     }
 }
 
-extension DefaultContentShareClientController: VideoClientDelegate {
+extension DefaultContentShareVideoClientController: VideoClientDelegate {
     public func videoClientRequestTurnCreds(_ client: VideoClient?) {
         let turnControlUrl = configuration.urls.turnControlUrl
         let meetingId = configuration.meetingId
         let signalingUrl = configuration.urls.signalingUrl
+        let joinTokenBase = DefaultModality(id: configuration.credentials.joinToken).base
         TURNRequestService.postTURNRequest(meetingId: meetingId,
                                            turnControlUrl: turnControlUrl,
-                                           joinToken: turnRequestJoinToken,
+                                           joinToken: joinTokenBase,
                                            logger: logger) { [weak self] turnCredentials in
             if let strongSelf = self, let turnCredentials = turnCredentials {
                 let turnResponse = turnCredentials.toTURNSessionResponse(urlRewriter: strongSelf.configuration.urlRewriter,

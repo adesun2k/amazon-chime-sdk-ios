@@ -10,28 +10,28 @@ import AmazonChimeSDKMedia
 import Foundation
 
 @objcMembers public class DefaultContentShareController: NSObject, ContentShareController {
-    private let contentShareClientController: ContentShareClientController
+    private let contentShareVideoClientController: ContentShareVideoClientController
 
-    public init(configuration: MeetingSessionConfiguration, logger: Logger) {
-        contentShareClientController = DefaultContentShareClientController(configuration: configuration, logger: logger)
+    public init(contentShareVideoClientController: ContentShareVideoClientController) {
+        self.contentShareVideoClientController = contentShareVideoClientController
         super.init()
     }
 
-    public func startContentShare(contentShareSource: ContentShareSource) {
-        if let videoSource = contentShareSource.videoSource {
-            contentShareClientController.startVideoSharing(source: videoSource)
+    public func startContentShare(source: ContentShareSource) {
+        if let videoSource = source.videoSource {
+            contentShareVideoClientController.startVideoShare(source: videoSource)
         }
     }
 
     public func stopContentShare() {
-        contentShareClientController.stopVideoSharing()
+        contentShareVideoClientController.stopVideoShare()
     }
 
     public func addContentShareObserver(observer: ContentShareObserver) {
-        contentShareClientController.subscribeToVideoClientStateChange(observer: observer)
+        contentShareVideoClientController.subscribeToVideoClientStateChange(observer: observer)
     }
 
     public func removeContentShareObserver(observer: ContentShareObserver) {
-        contentShareClientController.unsubscribeFromVideoClientStateChange(observer: observer)
+        contentShareVideoClientController.unsubscribeFromVideoClientStateChange(observer: observer)
     }
 }
