@@ -10,8 +10,8 @@ import AmazonChimeSDK
 import UIKit
 
 class VideoModel: NSObject {
-    private let maxRemoteVideoTileCount = 16
-    private let remoteVideoTileCountPerPage = 6
+    private let maxRemoteVideoTileCount = 64
+    private let remoteVideoTileCountPerPage = 32
 
     private var currentRemoteVideoPageIndex = 0
 
