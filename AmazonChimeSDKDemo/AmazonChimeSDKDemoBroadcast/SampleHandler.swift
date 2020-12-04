@@ -13,10 +13,11 @@ import ReplayKit
 fileprivate let userDefaultsKeyMeetingId = "demoMeetingId"
 fileprivate let userDefaultsKeyCredentials = "demoMeetingCredentials"
 fileprivate let userDefaultsKeyUrls = "demoMeetingUrls"
+fileprivate let appGroup = "group.com.amazon.chime.sdk.enterprise"
 
 class SampleHandler: RPBroadcastSampleHandler {
     let logger = ConsoleLogger(name: "SampleHandler")
-    let appGroupUserDefaults = UserDefaults(suiteName: "group.com.amazonaws.services.chime.SDKDemo")
+    let appGroupUserDefaults = UserDefaults(suiteName: appGroup)
     var currentMeetingSession: MeetingSession?
     var observer: NSKeyValueObservation?
     lazy var screenCaptureSource = DefaultScreenCaptureSource(logger: logger)
@@ -35,7 +36,7 @@ class SampleHandler: RPBroadcastSampleHandler {
         }
         currentMeetingSession = DefaultMeetingSession(configuration: config, logger: logger)
         screenCaptureSource.start()
-        currentMeetingSession?.audioVideo.startContentShare(contentShareSource: contentShareSource)
+        currentMeetingSession?.audioVideo.startContentShare(source: contentShareSource)
 
         // If the meetingId is changed from the demo app, we need to observe the meetingId and stop broadcast
         observer = appGroupUserDefaults?.observe(\.demoMeetingId,

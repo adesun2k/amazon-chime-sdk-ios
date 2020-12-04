@@ -10,7 +10,7 @@ import AmazonChimeSDK
 import Foundation
 
 class ScreenShareModel: NSObject {
-    let appGroupUserDefaults = UserDefaults(suiteName: "group.com.amazonaws.services.chime.SDKDemo")
+    let appGroupUserDefaults = UserDefaults(suiteName: "group.com.amazon.chime.sdk.enterprise")
     let userDefaultsKeyMeetingId = "demoMeetingId"
     let userDefaultsKeyCredentials = "demoMeetingCredentials"
     let userDefaultsKeyUrls = "demoMeetingUrls"
@@ -96,7 +96,7 @@ extension ScreenShareModel: CaptureSourceObserver {
         logger.info(msg: "InAppScreenCaptureSource did start")
         let contentShareSource = ContentShareSource()
         contentShareSource.videoSource = inAppScreenCaptureSource
-        contentShareController.startContentShare(contentShareSource: contentShareSource)
+        contentShareController.startContentShare(source: contentShareSource)
         deleteMeetingSessionConfigFromUserDefaults()
     }
 
