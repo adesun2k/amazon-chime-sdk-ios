@@ -209,7 +209,8 @@ class DefaultVideoClientController: NSObject {
                           token: joinToken,
                           sending: false,
                           config: videoConfig,
-                          appInfo: appInfo)
+                          appInfo: appInfo,
+                          signalingUrl: signalingUrl)
         videoClientState = .started
     }
 }
@@ -338,6 +339,10 @@ extension DefaultVideoClientController: VideoClientDelegate {
                 }
             }
         }
+    }
+    
+    public func videoClientTurnURIsReceived(_ uris: [String]) -> [String] {
+        return uris.map(self.configuration.urlRewriter)
     }
 }
 
