@@ -233,7 +233,8 @@ class MeetingViewController: UIViewController {
                                                                    width: pickerViewDiameter,
                                                                    height: pickerViewDiameter))
         pickerView.translatesAutoresizingMaskIntoConstraints = false
-        pickerView.preferredExtension = "com.amazonaws.services.chime.SDKDemo.AmazonChimeSDKDemoBroadcast"
+        pickerView.preferredExtension = AppConfiguration.broadcastBundleId
+
         // Microphone audio is passed through AudioVideoControllerFacade instead of ContentShareController
         pickerView.showsMicrophoneButton = false
         if let button = pickerView.subviews.first as? UIButton {
@@ -392,10 +393,11 @@ class MeetingViewController: UIViewController {
         optionMenu.addAction(customSourceAction)
 
         #if !targetEnvironment(simulator)
-            let nextInAppContentshareStatus = meetingModel.screenShareModel.isInAppContentShareActive ? "off" : "on"
-            let inAppContentShareAction = UIAlertAction(title: "Turn \(nextInAppContentshareStatus) in app content share",
-                                                   style: .default,
-                                                   handler: { _ in self.toggleInAppContentShare() })
+            let inAppContentShareTitle = meetingModel.screenShareModel.isInAppContentShareActive ?
+                "Stop sharing content" : "Share in app content"
+            let inAppContentShareAction = UIAlertAction(title: inAppContentShareTitle,
+                                                        style: .default,
+                                                        handler: { _ in self.toggleInAppContentShare() })
             optionMenu.addAction(inAppContentShareAction)
         #endif
 

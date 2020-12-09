@@ -141,10 +141,6 @@ class VideoModel: NSObject {
                         customVideoSource = metalVideoProcessor
                     }
                     self.audioVideoFacade.startLocalVideo(source: customVideoSource)
-                    if !self.isLocalVideoActive {
-                        // Only start capturer if it is not already running
-                        self.customSource.start()
-                    }
                 } else {
                     do {
                         try self.audioVideoFacade.startLocalVideo()

@@ -10,7 +10,7 @@ import AmazonChimeSDK
 import Foundation
 
 class ScreenShareModel: NSObject {
-    let appGroupUserDefaults = UserDefaults(suiteName: "group.com.amazon.chime.sdk.enterprise")
+    let appGroupUserDefaults = UserDefaults(suiteName: AppConfiguration.appGroupId)
     let userDefaultsKeyMeetingId = "demoMeetingId"
     let userDefaultsKeyCredentials = "demoMeetingCredentials"
     let userDefaultsKeyUrls = "demoMeetingUrls"
