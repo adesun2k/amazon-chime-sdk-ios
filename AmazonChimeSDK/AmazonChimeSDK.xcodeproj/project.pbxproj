@@ -148,6 +148,7 @@
 		C4C540662538C08D00427A84 /* VideoCaptureFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4C540652538C08D00427A84 /* VideoCaptureFormat.swift */; };
 		C4EDDAAC253F46FF0028264A /* VideoCaptureFormatTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4EDDAAB253F46FF0028264A /* VideoCaptureFormatTests.swift */; };
 		C4EDDAB0253F4C4B0028264A /* CaptureSourceErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4EDDAAF253F4C4B0028264A /* CaptureSourceErrorTests.swift */; };
+		C4F8B6552580172200D9AE54 /* CMCampleBufferExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4F8B6542580172200D9AE54 /* CMCampleBufferExtensions.swift */; };
 		C60D5593246509BA00C2A278 /* Converters.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60D5592246509B900C2A278 /* Converters.swift */; };
 		C60D5596246514B000C2A278 /* ConvertersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60D5595246514B000C2A278 /* ConvertersTests.swift */; };
 		C6C2F106250BF522001678B8 /* DefaultDeviceControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C2F105250BF522001678B8 /* DefaultDeviceControllerTests.swift */; };
@@ -322,6 +323,7 @@
 		C4C540652538C08D00427A84 /* VideoCaptureFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCaptureFormat.swift; sourceTree = "<group>"; };
 		C4EDDAAB253F46FF0028264A /* VideoCaptureFormatTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoCaptureFormatTests.swift; sourceTree = "<group>"; };
 		C4EDDAAF253F4C4B0028264A /* CaptureSourceErrorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureSourceErrorTests.swift; sourceTree = "<group>"; };
+		C4F8B6542580172200D9AE54 /* CMCampleBufferExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CMCampleBufferExtensions.swift; sourceTree = "<group>"; };
 		C60D5592246509B900C2A278 /* Converters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Converters.swift; sourceTree = "<group>"; };
 		C60D5595246514B000C2A278 /* ConvertersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConvertersTests.swift; sourceTree = "<group>"; };
 		C6C2F105250BF522001678B8 /* DefaultDeviceControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultDeviceControllerTests.swift; sourceTree = "<group>"; };
@@ -744,6 +746,7 @@
 				5A16BFEE2405E6A500ADAE26 /* DictionaryExtension.swift */,
 				C4A6908F255B691900F28BC2 /* DeviceUtils.swift */,
 				C4A6908B255B529200F28BC2 /* TURNRequestService.swift */,
+				C4F8B6542580172200D9AE54 /* CMCampleBufferExtensions.swift */,
 			);
 			path = utils;
 			sourceTree = "<group>";
@@ -1075,6 +1078,7 @@
 				C4A69076255B0EA400F28BC2 /* ContentShareObserver.swift in Sources */,
 				5A175AB823CFD28A00121924 /* DefaultAudioVideoFacade.swift in Sources */,
 				6AA9F93F2522438F00EB0644 /* VideoSourceAdapter.swift in Sources */,
+				C4F8B6552580172200D9AE54 /* CMCampleBufferExtensions.swift in Sources */,
 				5A16B9C923FDF44500ADAE26 /* DefaultClientMetricsCollector.swift in Sources */,
 				C48339B8256836E700F011D0 /* DefaultContentShareClientController.swift in Sources */,
 				C42A8A1C253E3B15008419A6 /* CameraCaptureSource.swift in Sources */,

@@ -21,6 +21,7 @@ import Foundation
         config.isUsing16by9AspectRatio = true
         config.isUsingPixelBufferRenderer = true
         config.isUsingOptimizedTwoSimulcastStreamTable = true
+        config.isContentShare = true
         return config
     }()
 
@@ -41,13 +42,13 @@ import Foundation
         videoSourceAdapter.source = source
         videoClient.setExternalVideoSource(videoSourceAdapter)
         videoClient.setSending(true)
-        ObserverUtils.forEach(observers: contentShareObservers) { (observer: ContentShareObserver) in
-            observer.contentShareDidStart()
-        }
         isSharing = true
     }
 
     public func stopVideoShare() {
+        if !isSharing {
+            return
+        }
         videoClient.setSending(false)
         stopVideoClient()
         isSharing = false
@@ -100,6 +101,9 @@ extension DefaultContentShareVideoClientController: VideoClientDelegate {
 
     public func videoClientDidConnect(_ client: VideoClient?, controlStatus: Int32) {
         logger.info(msg: "ContentShare videoClientDidConnect")
+        ObserverUtils.forEach(observers: contentShareObservers) { (observer: ContentShareObserver) in
+            observer.contentShareDidStart()
+        }
     }
 
     public func videoClientDidFail(_ client: VideoClient?, status: video_client_status_t, controlStatus: Int32) {

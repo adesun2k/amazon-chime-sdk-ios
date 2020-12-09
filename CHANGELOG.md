@@ -1,4 +1,5 @@
 ## Unreleased
+
 ### Added
 * Added `ContentShareController`, `ContentShareObserver`, `ContentShareSource`, `ContentShareStatus`, `ContentShareStatusCode` to start and stop sharing a 2nd video only stream.
 * Added `DefaultContentShareController` implementation of `ContentShareController`.
@@ -10,6 +11,7 @@
 ### Changed
 * **Breaking** `AudioVideoFacade` now also implements `ContentShareController`
 * **Breaking** `DefaultAudioVideoFacade` init requires a `ContentShareController` instance.
+* `isLocalTile` will also return true for attendee's content share video stream.
 
 ## [0.12.1] - 2020-11-20
 

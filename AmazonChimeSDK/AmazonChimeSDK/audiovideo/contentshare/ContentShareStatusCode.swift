@@ -9,7 +9,7 @@
 import Foundation
 
 /// `ContentShareStatusCode` indicates the reason the content share event occurred.
-@objc public enum ContentShareStatusCode: Int {
+@objc public enum ContentShareStatusCode: Int, CustomStringConvertible {
     /// Everything is OK so far.
     case ok = 0
 
