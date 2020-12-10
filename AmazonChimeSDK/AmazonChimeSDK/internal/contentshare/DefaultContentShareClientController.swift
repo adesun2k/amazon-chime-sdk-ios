@@ -20,7 +20,6 @@ import Foundation
         let config = VideoConfiguration()
         config.isUsing16by9AspectRatio = true
         config.isUsingPixelBufferRenderer = true
-        config.isUsingOptimizedTwoSimulcastStreamTable = true
         config.isContentShare = true
         return config
     }()
