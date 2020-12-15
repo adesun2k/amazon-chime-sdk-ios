@@ -104,6 +104,7 @@ class DefaultVideoClientController: NSObject {
         videoConfig.isUsing16by9AspectRatio = true
         videoConfig.isUsingPixelBufferRenderer = true
         videoConfig.isUsingOptimizedTwoSimulcastStreamTable = true
+        videoConfig.isExcludeSelfContentInIndex = true
 
         // Default to idle mode, no video but signaling connection is
         // established for messaging
