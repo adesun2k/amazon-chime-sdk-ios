@@ -10,15 +10,15 @@ import Foundation
 
 /// `DefaultModality` is a backwards compatible extension of the
 /// attendee id (UUID string) and session token schemas (base 64 string).
-/// It appends #<modality> to either strings, which indicates the modality
+/// It appends #<modality> to either string, which indicates the modality
 /// of the participant.
 ///
 /// For example,
 /// `attendeeId`: "abcdefg"
 /// `contentAttendeeId`: "abcdefg#content"
-/// `contentAttendeeId.base`: "abcdefg"
-/// `contentAttendeeId.modality`: "content"
-/// `contentAttendeeId.hasModality(type: .content)`: true
+/// `DefaultModality(id: contentAttendeeId).base`: "abcdefg"
+/// `DefaultModality(id: contentAttendeeId).modality`: "content"
+/// `DefaultModality(id: contentAttendeeId).isOfType(type: .content)`: true
 @objc public class DefaultModality: NSObject {
     public let id: String
     public let base: String
@@ -36,7 +36,7 @@ import Foundation
         }
     }
 
-    public func hasModality(type: ModalityType) -> Bool {
+    public func isOfType(type: ModalityType) -> Bool {
         return modality == type.description
     }
 }
