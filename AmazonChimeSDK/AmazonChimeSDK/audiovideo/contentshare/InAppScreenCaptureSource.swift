@@ -14,19 +14,22 @@ import ReplayKit
 /// on iOS 11+ because of `RPScreenRecorder.startCapture(handler:completionHandler:)` method.
 /// `InAppScreenCaptureSource` does not support rotation while it's in progress. 
 @available(iOS 11.0, *)
-@objcMembers public class InAppScreenCaptureSource: NSObject, VideoCaptureSource {
+@objcMembers public class InAppScreenCaptureSource: VideoCaptureSource {
     public var videoContentHint: VideoContentHint = .text
 
     private let logger: Logger
     private let observers = ConcurrentMutableSet()
     private let sinks = ConcurrentMutableSet()
+
     private var screenRecorder: RPScreenRecorder {
         return RPScreenRecorder.shared()
     }
+    // Use an internal source so logic can be shared with ReplayKit broadcast sources
+    private let replayKitSource: ReplayKitSource
 
     public init(logger: Logger) {
         self.logger = logger
-        super.init()
+        replayKitSource = ReplayKitSource(logger: logger)
     }
 
     public func start() {
@@ -34,29 +37,22 @@ import ReplayKit
             stop()
         }
         screenRecorder.startCapture(handler: { [weak self] sampleBuffer, sampleBufferType, error in
-            guard let strongSelf = self else { return }
+            guard let `self` = self else { return }
             if error != nil {
-                strongSelf.logger.error(msg: "RPScreenRecorder capture error received: \(error.debugDescription)")
+                self.logger.error(msg: "RPScreenRecorder capture error received: \(error.debugDescription)")
             } else {
-                switch sampleBufferType {
-                case .video:
-                    strongSelf.processVideo(sampleBuffer: sampleBuffer)
-                case .audioApp, .audioMic:
-                    break
-                @unknown default:
-                    break
-                }
+                self.replayKitSource.processSampleBuffer(sampleBuffer: sampleBuffer, type: sampleBufferType)
             }
         }, completionHandler: { [weak self] error in
-            guard let strongSelf = self else { return }
+            guard let `self` = self else { return }
             if let error = error {
-                strongSelf.logger.error(msg: "RPScreenRecorder start failed: \(error.localizedDescription)" )
-                ObserverUtils.forEach(observers: strongSelf.observers) { (observer: CaptureSourceObserver) in
+                self.logger.error(msg: "RPScreenRecorder start failed: \(error.localizedDescription)" )
+                ObserverUtils.forEach(observers: self.observers) { (observer: CaptureSourceObserver) in
                     observer.captureDidFail(error: .systemFailure)
                 }
             } else {
-                strongSelf.logger.info(msg: "RPScreenRecorder start succeeded.")
-                ObserverUtils.forEach(observers: strongSelf.observers) { (observer: CaptureSourceObserver) in
+                self.logger.info(msg: "RPScreenRecorder start succeeded.")
+                ObserverUtils.forEach(observers: self.observers) { (observer: CaptureSourceObserver) in
                     observer.captureDidStart()
                 }
             }
@@ -69,19 +65,27 @@ import ReplayKit
             return
         }
         screenRecorder.stopCapture { [weak self] error in
-            guard let strongSelf = self else { return }
+            guard let `self` = self else { return }
             if let error = error {
-                strongSelf.logger.error(msg: "RPScreenRecorder stop failed: \(error.localizedDescription)")
-                ObserverUtils.forEach(observers: strongSelf.observers) { (observer: CaptureSourceObserver) in
+                `self`.logger.error(msg: "RPScreenRecorder stop failed: \(error.localizedDescription)")
+                ObserverUtils.forEach(observers: `self`.observers) { (observer: CaptureSourceObserver) in
                     observer.captureDidFail(error: .systemFailure)
                 }
             } else {
-                strongSelf.logger.info(msg: "RPScreenRecorder stop succeeded.")
-                ObserverUtils.forEach(observers: strongSelf.observers) { (observer: CaptureSourceObserver) in
+                self.logger.info(msg: "RPScreenRecorder stop succeeded.")
+                ObserverUtils.forEach(observers: `self`.observers) { (observer: CaptureSourceObserver) in
                     observer.captureDidStop()
                 }
             }
         }
+    }
+
+    public func addVideoSink(sink: VideoSink) {
+        replayKitSource.addVideoSink(sink: sink)
+    }
+
+    public func removeVideoSink(sink: VideoSink) {
+        replayKitSource.removeVideoSink(sink: sink)
     }
 
     public func addCaptureSourceObserver(observer: CaptureSourceObserver) {
@@ -90,39 +94,5 @@ import ReplayKit
 
     public func removeCaptureSourceObserver(observer: CaptureSourceObserver) {
         observers.remove(observer)
-    }
-
-    public func addVideoSink(sink: VideoSink) {
-        sinks.add(sink)
-    }
-
-    public func removeVideoSink(sink: VideoSink) {
-        sinks.remove(sink)
-    }
-
-    public func processVideo(sampleBuffer: CMSampleBuffer) {
-        guard CMSampleBufferGetNumSamples(sampleBuffer) == 1,
-              CMSampleBufferIsValid(sampleBuffer),
-              CMSampleBufferDataIsReady(sampleBuffer),
-              let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
-
-            ObserverUtils.forEach(observers: observers) { (observer: CaptureSourceObserver) in
-                observer.captureDidFail(error: .invalidFrame)
-            }
-            logger.error(msg: "InAppScreenCaptureSource invalid frame received")
-            return
-        }
-
-        let videoRotation = sampleBuffer.getVideoRotation()
-        let timeStampNs = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sampleBuffer)) *
-            Double(Constants.nanosecondsPerSecond)
-        let frame = VideoFrame(timestampNs: Int64(timeStampNs),
-                               rotation: videoRotation,
-                               buffer: VideoFramePixelBuffer(pixelBuffer: pixelBuffer))
-        sinks.forEach { sink in
-            if let sink = sink as? VideoSink {
-                sink.onVideoFrameReceived(frame: frame)
-            }
-        }
     }
 }
