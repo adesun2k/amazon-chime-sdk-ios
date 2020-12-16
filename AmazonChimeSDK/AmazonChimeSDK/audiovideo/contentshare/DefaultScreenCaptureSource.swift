@@ -23,9 +23,8 @@ import ReplayKit
     private let sinks = ConcurrentMutableSet()
 
 //    private let pixelBufferLockFlagReadOnly = CVPixelBufferLockFlags(rawValue: 0)
-//    private let resendTimeIntervalMs = CMTime(value: CMTimeValue(Constants.millisecondsPerSecond /
-//                                                                Constants.maxSupportedVideoFrameRate),
-//                                            timescale: CMTimeScale(Constants.millisecondsPerSecond))
+//    private let resendTimeIntervalMs = CMTime(value: CMTimeValue(Constants.millisecondsPerSecond / Constants.maxSupportedVideoFrameRate),
+//                                              timescale: CMTimeScale(Constants.millisecondsPerSecond))
 //    private let resendScheduleLeewayMs = DispatchTimeInterval.milliseconds(20)
 //    private let resendQueue = DispatchQueue.global()
 //    private var resendTimer: DispatchSourceTimer?
@@ -146,8 +145,8 @@ import ReplayKit
 //                    strongSelf.sendFrame(sampleBuffer: lastInputVideoFrame)
 //                } else {
 //                    // Reset resending schedule if there is an input frame between internals
-//                    let remainingMs = strongSelf.resendTimeIntervalMs.seconds - delta.seconds
-//                    let deadline = DispatchTime.now() + DispatchTimeInterval.milliseconds(Int(remainingMs *
+//                    let remainingSeconds = strongSelf.resendTimeIntervalMs.seconds - delta.seconds
+//                    let deadline = DispatchTime.now() + DispatchTimeInterval.milliseconds(Int(remainingSeconds *
 //                                                               Double(Constants.millisecondsPerSecond)))
 //                    strongSelf.resendTimer?.schedule(deadline: deadline, leeway: strongSelf.resendScheduleLeewayMs)
 //                }

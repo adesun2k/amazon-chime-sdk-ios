@@ -242,7 +242,7 @@ class MeetingViewController: UIViewController {
         }
         broadcastPickerContainerView.addSubview(pickerView)
         // We add this action to turn off in app content sharing when user attemp to use broadcast
-        for subview in broadcastPickerContainerView.subviews {
+        for subview in pickerView.subviews {
             if let button = subview as? UIButton {
                 button.addTarget(self, action: #selector(broadcastButtonTapped), for: .touchUpInside)
             }
@@ -509,7 +509,9 @@ class MeetingViewController: UIViewController {
     }
 
     @objc private func toggleInAppContentShare() {
-        logger.info(msg: "Toggling in app content share")
+        let isOn = meetingModel?.screenShareModel.isInAppContentShareActive ?? false
+        let nextStateString = isOn ? "off" : "on"
+        logger.info(msg: "Turning \(nextStateString) in app content share")
         guard let meetingModel = meetingModel else {
             return
         }

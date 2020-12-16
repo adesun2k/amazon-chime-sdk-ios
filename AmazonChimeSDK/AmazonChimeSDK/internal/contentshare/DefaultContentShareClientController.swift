@@ -15,6 +15,7 @@ import Foundation
     private let logger: Logger
     private let contentShareObservers = ConcurrentMutableSet()
     private let videoSourceAdapter = VideoSourceAdapter()
+    private let lock = NSRecursiveLock()
     private var isSharing = false
     private let videoConfig: VideoConfiguration = {
         let config = VideoConfiguration()
@@ -34,6 +35,9 @@ import Foundation
     }
 
     public func startVideoShare(source: VideoSource) {
+        lock.lock()
+        defer { lock.unlock() }
+
         if isSharing {
             stopVideoShare()
         }
@@ -41,16 +45,17 @@ import Foundation
         videoSourceAdapter.source = source
         videoClient.setExternalVideoSource(videoSourceAdapter)
         videoClient.setSending(true)
-        isSharing = true
     }
 
     public func stopVideoShare() {
+        lock.lock()
+        defer { lock.unlock() }
+
         if !isSharing {
             return
         }
         videoClient.setSending(false)
         stopVideoClient()
-        isSharing = false
     }
 
     private func startVideoClient() {
@@ -103,6 +108,7 @@ extension DefaultContentShareVideoClientController: VideoClientDelegate {
         ObserverUtils.forEach(observers: contentShareObservers) { (observer: ContentShareObserver) in
             observer.contentShareDidStart()
         }
+        isSharing = true
     }
 
     public func videoClientDidFail(_ client: VideoClient?, status: video_client_status_t, controlStatus: Int32) {
@@ -110,6 +116,7 @@ extension DefaultContentShareVideoClientController: VideoClientDelegate {
         ObserverUtils.forEach(observers: contentShareObservers) { (observer: ContentShareObserver) in
             observer.contentShareDidStop(status: ContentShareStatus(statusCode: .videoServiceFailed))
         }
+        isSharing = false
     }
 
     public func videoClientDidStop(_ client: VideoClient?) {
@@ -117,5 +124,6 @@ extension DefaultContentShareVideoClientController: VideoClientDelegate {
         ObserverUtils.forEach(observers: contentShareObservers) { (observer: ContentShareObserver) in
             observer.contentShareDidStop(status: ContentShareStatus(statusCode: .ok))
         }
+        isSharing = false
     }
 }
