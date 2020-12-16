@@ -76,7 +76,7 @@ import CoreMedia
                                                                     * Double(Constants.nanosecondsPerSecond)),
                                                rotation: lastVideoFrame.rotation,
                                                buffer: lastVideoFrame.buffer)
-                
+
                 // Cancel the current timer so that new frames will kick it off again
                 self.resendTimer?.cancel()
                 self.resendTimer = nil

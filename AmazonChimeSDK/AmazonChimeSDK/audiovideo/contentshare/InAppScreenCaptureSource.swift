@@ -14,7 +14,7 @@ import ReplayKit
 /// on iOS 11+ because of `RPScreenRecorder.startCapture(handler:completionHandler:)` method.
 /// `InAppScreenCaptureSource` does not support rotation while it's in progress. 
 @available(iOS 11.0, *)
-@objcMembers public class InAppScreenCaptureSource: VideoCaptureSource {
+@objcMembers public class InAppScreenCaptureSource: NSObject, VideoCaptureSource {
     public var videoContentHint: VideoContentHint = .text
 
     private let logger: Logger
