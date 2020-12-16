@@ -13,9 +13,18 @@
 * **Breaking** `DefaultAudioVideoFacade` init requires a `ContentShareController` instance.
 * `isLocalTile` will also return true for attendee's content share video stream.
 
+## [0.12.2] - 2020-12-17
+
+### Changed
+* **Breaking** Remove the internal video tile mapping entry not only when the video is *unbound*, but also when the video is *removed*. This fixes [`videoTileDidAdd(tileState)` is sometimes not called issue](https://github.com/aws/amazon-chime-sdk-android/issues/186), and provides better API symmetry so that builders no longer need to call `unbindVideoView(tileId:)` if they did not call `bindVideoView(videoView:tileId:)`.
+  * After this fix, the internal video tile mapping entry will be removed before `videoTileDidRemove(tileState:)` callback is called. Please check your `VideoTileObserver`s and make sure your `videoTileDidRemove(tileState:)` handlers do not call any SDK APIs that depend on the existance of video tiles (e.g. `bindVideoView(videoView:tileId:)`).
+
+## [0.12.2] - 2020-12-11
+
 ## [0.12.1] - 2020-11-20
 
 ## [0.12.0] - 2020-11-17
+
 ### Added
 * Added new APIs in `RealtimeControllerFacade` to enable/disable Voice Focus (ML-based noise suppression) and get the on/off status of Voice Focus.
 * Added Voice Focus feature in Swift demo app.
@@ -36,9 +45,7 @@
 * **Breaking** Changed behavior to no longer call `videoTileSizeDidChange` when a video is paused to fix a bug where pausing triggered this callback with width=0 and height=0.
 * Fixed `videoTileDidAdd` not being called for paused tiles.
 
-
 ### Changed
-
 * **Breaking** Changed default log level of `ConsoleLogger` to INFO.
 * The render path has been changed to use `VideoFrame`s for consistency with the send side, this includes:
   * **Breaking** `VideoTileController.onReceiveFrame` now takes `VideoFrame?` instead of `CVPixelBuffer?`.
@@ -110,7 +117,7 @@
 
 ### Changed
 - **Breaking** Throw MediaError.audioFailedToStart when AudioClient fails to start
-- **Breaking** Changed the constructor for `DefaultVideoTileController` 
+- **Breaking** Changed the constructor for `DefaultVideoTileController`
 - Changed UI for iOS demo app
 - `DefaultVideoRenderView` now supports dynamically changing `contentMode` at run time.
 - Changed video render frame type from `Any?` to `CVPixelBuffer?`
