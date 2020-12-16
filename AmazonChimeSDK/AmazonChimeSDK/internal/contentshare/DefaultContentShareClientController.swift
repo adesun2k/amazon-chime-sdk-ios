@@ -15,7 +15,7 @@ import Foundation
     private let logger: Logger
     private let contentShareObservers = ConcurrentMutableSet()
     private let videoSourceAdapter = VideoSourceAdapter()
-    private let lock = NSRecursiveLock()
+    private let lock = NSLock()
     private var isSharing = false
     private let videoConfig: VideoConfiguration = {
         let config = VideoConfiguration()
