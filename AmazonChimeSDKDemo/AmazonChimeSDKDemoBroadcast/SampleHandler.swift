@@ -10,13 +10,15 @@
 import AmazonChimeSDK
 import ReplayKit
 
-fileprivate let userDefaultsKeyMeetingId = "demoMeetingId"
-fileprivate let userDefaultsKeyCredentials = "demoMeetingCredentials"
-fileprivate let userDefaultsKeyUrls = "demoMeetingUrls"
+let appGroupId = "YOUR_APP_GROUP_ID"
+
+let userDefaultsKeyMeetingId = "demoMeetingId"
+let userDefaultsKeyCredentials = "demoMeetingCredentials"
+let userDefaultsKeyUrls = "demoMeetingUrls"
 
 class SampleHandler: RPBroadcastSampleHandler {
     let logger = ConsoleLogger(name: "SampleHandler")
-    let appGroupUserDefaults = UserDefaults(suiteName: "group.com.amazon.chime.sdk.enterprise")
+    let appGroupUserDefaults = UserDefaults(suiteName: appGroupId)
     var currentMeetingSession: MeetingSession?
     var observer: NSKeyValueObservation?
     lazy var screenCaptureSource = DefaultScreenCaptureSource(logger: logger)

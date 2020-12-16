@@ -11,6 +11,6 @@ import Foundation
 struct AppConfiguration {
     static let url = "YOUR_SERVER_URL"
     static let region = "YOUR_SERVER_REGION"
-    static let broadcastBundleId = "com.amazon.chime.sdk.enterprise.broadcast"
-    static let appGroupId = "group.com.amazon.chime.sdk.enterprise"
+    static let broadcastBundleId = "YOUR_BROADCAST_BUNDLE_ID"
+    static let appGroupId = "YOUR_APP_GROUP_ID"
 }

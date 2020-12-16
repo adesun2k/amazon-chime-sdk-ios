@@ -509,7 +509,9 @@ class MeetingViewController: UIViewController {
     }
 
     @objc private func toggleInAppContentShare() {
-        logger.info(msg: "Toggling in app content share")
+        let isOn = meetingModel?.screenShareModel.isInAppContentShareActive ?? false
+        let nextStateString = isOn ? "off" : "on"
+        logger.info(msg: "Turning \(nextStateString) in app content share")
         guard let meetingModel = meetingModel else {
             return
         }
