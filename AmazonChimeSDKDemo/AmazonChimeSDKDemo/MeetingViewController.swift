@@ -20,7 +20,7 @@ class MeetingViewController: UIViewController {
     @IBOutlet var controlView: UIView!
     @IBOutlet var cameraButton: UIButton!
     @IBOutlet var deviceButton: UIButton!
-    @IBOutlet var broadcastPickerView: UIView!
+    @IBOutlet var broadcastPickerContainerView: UIView!
     @IBOutlet var additionalOptionsButton: UIButton!
     @IBOutlet var endButton: UIButton!
     @IBOutlet var muteButton: UIButton!
@@ -218,68 +218,69 @@ class MeetingViewController: UIViewController {
         sendMessageButton.imageView?.contentMode = UIView.ContentMode.scaleAspectFit
         setupHideKeyboardOnTap()
         #if !targetEnvironment(simulator)
-        if #available(iOS 12.0, *) {
-            setupBroadcastPickerView()
-        }
+            if #available(iOS 12.0, *) {
+                setupBroadcastPickerView()
+            }
         #endif
     }
 
     // RPSystemBroadcastPickerView
     @available(iOS 12.0, *)
     private func setupBroadcastPickerView() {
+        let pickerViewDiameter: CGFloat = 35
         let pickerView = RPSystemBroadcastPickerView(frame: CGRect(x: 0,
                                                                    y: 0,
-                                                                   width: 80,
-                                                                   height: 80))
+                                                                   width: pickerViewDiameter,
+                                                                   height: pickerViewDiameter))
         pickerView.translatesAutoresizingMaskIntoConstraints = false
-        pickerView.preferredExtension = "com.amazonaws.services.chime.SDKDemo.AmazonChimeSDKDemoBroadcast"
+        pickerView.preferredExtension = AppConfiguration.broadcastBundleId
+
         // Microphone audio is passed through AudioVideoControllerFacade instead of ContentShareController
         pickerView.showsMicrophoneButton = false
         if let button = pickerView.subviews.first as? UIButton {
             button.imageView?.tintColor = UIColor.red
         }
-        view.addSubview(pickerView)
-        broadcastPickerView = pickerView
+        broadcastPickerContainerView.addSubview(pickerView)
         // We add this action to turn off in app content sharing when user attemp to use broadcast
-        for subview in broadcastPickerView.subviews {
+        for subview in pickerView.subviews {
             if let button = subview as? UIButton {
                 button.addTarget(self, action: #selector(broadcastButtonTapped), for: .touchUpInside)
             }
         }
 
-        let left = NSLayoutConstraint(item: pickerView,
-                                         attribute: NSLayoutConstraint.Attribute.left,
-                                         relatedBy: NSLayoutConstraint.Relation.equal,
-                                         toItem: cameraButton,
-                                         attribute: NSLayoutConstraint.Attribute.right,
+        let centerX = NSLayoutConstraint(item: pickerView,
+                                         attribute: .centerX,
+                                         relatedBy: .equal,
+                                         toItem: broadcastPickerContainerView,
+                                         attribute: .centerX,
                                          multiplier: 1,
-                                         constant: 10)
-        view.addConstraint(left)
-        let right = NSLayoutConstraint(item: pickerView,
-                                         attribute: NSLayoutConstraint.Attribute.right,
-                                         relatedBy: NSLayoutConstraint.Relation.equal,
-                                         toItem: additionalOptionsButton,
-                                         attribute: NSLayoutConstraint.Attribute.left,
+                                         constant: 0)
+        broadcastPickerContainerView.addConstraint(centerX)
+        let centerY = NSLayoutConstraint(item: pickerView,
+                                         attribute: .centerY,
+                                         relatedBy: .equal,
+                                         toItem: broadcastPickerContainerView,
+                                         attribute: .centerY,
                                          multiplier: 1,
-                                         constant: -10)
-        view.addConstraint(right)
-        let top = NSLayoutConstraint(item: pickerView,
-                                       attribute: NSLayoutConstraint.Attribute.top,
-                                       relatedBy: NSLayoutConstraint.Relation.equal,
-                                       toItem: cameraButton,
-                                       attribute: NSLayoutConstraint.Attribute.top,
+                                         constant: 0)
+        broadcastPickerContainerView.addConstraint(centerY)
+        let width = NSLayoutConstraint(item: pickerView,
+                                     attribute: .width,
+                                       relatedBy: .equal,
+                                       toItem: nil,
+                                       attribute: .notAnAttribute,
                                        multiplier: 1,
-                                       constant: 0)
-        view.addConstraint(top)
-        let bottom = NSLayoutConstraint(item: pickerView,
-                                        attribute: NSLayoutConstraint.Attribute.bottom,
-                                        relatedBy: NSLayoutConstraint.Relation.equal,
-                                        toItem: cameraButton,
-                                        attribute: NSLayoutConstraint.Attribute.bottom,
-                                        multiplier: 1,
-                                        constant: 0)
-        view.addConstraint(bottom)
-        view.bringSubviewToFront(pickerView)
+                                       constant: pickerViewDiameter)
+        broadcastPickerContainerView.addConstraint(width)
+        let height = NSLayoutConstraint(item: pickerView,
+                                        attribute: .height,
+                                          relatedBy: .equal,
+                                          toItem: nil,
+                                          attribute: .notAnAttribute,
+                                          multiplier: 1,
+                                          constant: pickerViewDiameter)
+        broadcastPickerContainerView.addConstraint(height)
+        broadcastPickerContainerView.bringSubviewToFront(pickerView)
     }
 
     private func switchSubview(mode: MeetingModel.ActiveMode) {
@@ -392,11 +393,12 @@ class MeetingViewController: UIViewController {
         optionMenu.addAction(customSourceAction)
 
         #if !targetEnvironment(simulator)
-        let nextInAppContentshareStatus = meetingModel.screenShareModel.isInAppContentShareActive ? "off" : "on"
-        let inAppContentShareAction = UIAlertAction(title: "Turn \(nextInAppContentshareStatus) in app content share",
-                                               style: .default,
-                                               handler: { _ in self.toggleInAppContentShare() })
-        optionMenu.addAction(inAppContentShareAction)
+            let inAppContentShareTitle = meetingModel.screenShareModel.isInAppContentShareActive ?
+                "Stop sharing content" : "Share in app content"
+            let inAppContentShareAction = UIAlertAction(title: inAppContentShareTitle,
+                                                        style: .default,
+                                                        handler: { _ in self.toggleInAppContentShare() })
+            optionMenu.addAction(inAppContentShareAction)
         #endif
 
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
@@ -507,7 +509,7 @@ class MeetingViewController: UIViewController {
     }
 
     @objc private func toggleInAppContentShare() {
-        logger.info(msg: "Toggling torch")
+        logger.info(msg: "Toggling in app content share")
         guard let meetingModel = meetingModel else {
             return
         }

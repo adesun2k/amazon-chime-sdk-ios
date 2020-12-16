@@ -171,8 +171,8 @@
 		C4A690A0255DFF4600F28BC2 /* ReplayKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ReplayKit.framework; path = System/Library/Frameworks/ReplayKit.framework; sourceTree = SDKROOT; };
 		C4A690A3255DFF4600F28BC2 /* SampleHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleHandler.swift; sourceTree = "<group>"; };
 		C4A690A5255DFF4600F28BC2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		C4A690B1255E08AE00F28BC2 /* AmazonChimeSDKDemoDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AmazonChimeSDKDemoDebug.entitlements; sourceTree = "<group>"; };
-		C4A690B2255E0CDC00F28BC2 /* AmazonChimeSDKDemoBroadcastDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AmazonChimeSDKDemoBroadcastDebug.entitlements; sourceTree = "<group>"; };
+		C4A690B1255E08AE00F28BC2 /* AmazonChimeSDKDemo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AmazonChimeSDKDemo.entitlements; sourceTree = "<group>"; };
+		C4A690B2255E0CDC00F28BC2 /* AmazonChimeSDKDemoBroadcast.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AmazonChimeSDKDemoBroadcast.entitlements; sourceTree = "<group>"; };
 		C4D8E1B724A412B6005D9CF7 /* VideoModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoModel.swift; sourceTree = "<group>"; };
 		F82D50D923FC9C6C00D8F18C /* AppConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfiguration.swift; sourceTree = "<group>"; };
 		F8AC961F2408840D0072EB04 /* AmazonChimeSDKDemoObjC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AmazonChimeSDKDemoObjC.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -253,7 +253,7 @@
 		5A1582B823C40C9B0099F8FA /* AmazonChimeSDKDemo */ = {
 			isa = PBXGroup;
 			children = (
-				C4A690B1255E08AE00F28BC2 /* AmazonChimeSDKDemoDebug.entitlements */,
+				C4A690B1255E08AE00F28BC2 /* AmazonChimeSDKDemo.entitlements */,
 				F82D50BE23FC6E5B00D8F18C /* utils */,
 				003B58AA23E2380F002493AB /* data */,
 				F82D50D923FC9C6C00D8F18C /* AppConfiguration.swift */,
@@ -306,7 +306,7 @@
 		C4A690A2255DFF4600F28BC2 /* AmazonChimeSDKDemoBroadcast */ = {
 			isa = PBXGroup;
 			children = (
-				C4A690B2255E0CDC00F28BC2 /* AmazonChimeSDKDemoBroadcastDebug.entitlements */,
+				C4A690B2255E0CDC00F28BC2 /* AmazonChimeSDKDemoBroadcast.entitlements */,
 				C4A690A3255DFF4600F28BC2 /* SampleHandler.swift */,
 				C4A690A5255DFF4600F28BC2 /* Info.plist */,
 			);
@@ -756,7 +756,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
 				CLANG_CXX_LIBRARY = "libc++";
-				CODE_SIGN_ENTITLEMENTS = AmazonChimeSDKDemo/AmazonChimeSDKDemoDebug.entitlements;
+				CODE_SIGN_ENTITLEMENTS = AmazonChimeSDKDemo/AmazonChimeSDKDemo.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 0.12.1;
@@ -780,7 +780,7 @@
 					"-lc++",
 					"-ObjC",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.amazonaws.services.chime.SDKDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.amazon.chime.sdk.enterprise;
 				PRODUCT_NAME = AmazonChimeSDKDemo;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "";
@@ -798,6 +798,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
 				CLANG_CXX_LIBRARY = "libc++";
+				CODE_SIGN_ENTITLEMENTS = AmazonChimeSDKDemo/AmazonChimeSDKDemo.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 0.12.1;
@@ -822,7 +823,7 @@
 					"-lc++",
 					"-ObjC",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.amazonaws.services.chime.AmazonChimeSDKDemo;
+				PRODUCT_BUNDLE_IDENTIFIER = com.amazon.chime.sdk.enterprise;
 				PRODUCT_NAME = AmazonChimeSDKDemo;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "";
@@ -837,7 +838,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CODE_SIGN_ENTITLEMENTS = AmazonChimeSDKDemoBroadcast/AmazonChimeSDKDemoBroadcastDebug.entitlements;
+				CODE_SIGN_ENTITLEMENTS = AmazonChimeSDKDemoBroadcast/AmazonChimeSDKDemoBroadcast.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 0.12.1;
@@ -850,7 +851,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 0.12.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.amazonaws.services.chime.SDKDemo.AmazonChimeSDKDemoBroadcast;
+				PRODUCT_BUNDLE_IDENTIFIER = com.amazon.chime.sdk.enterprise.broadcast;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
@@ -862,6 +863,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CODE_SIGN_ENTITLEMENTS = AmazonChimeSDKDemoBroadcast/AmazonChimeSDKDemoBroadcast.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 0.12.1;
@@ -874,7 +876,7 @@
 					"@executable_path/../../Frameworks",
 				);
 				MARKETING_VERSION = 0.12.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.amazonaws.services.chime.AmazonChimeSDKDemo.AmazonChimeSDKDemoBroadcast;
+				PRODUCT_BUNDLE_IDENTIFIER = com.amazon.chime.sdk.enterprise.broadcast;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;

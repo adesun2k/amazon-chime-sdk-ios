@@ -717,28 +717,31 @@
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="l0A-Sg-Q3r">
                                         <rect key="frame" x="0.0" y="0.0" width="406" height="44"/>
                                         <subviews>
-                                            <button opaque="NO" contentMode="scaleAspectFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Tqt-DK-rj5" userLabel="Mic">
+                                            <button opaque="NO" contentMode="scaleAspectFill" contentHorizontalAlignment="fill" contentVerticalAlignment="fill" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Tqt-DK-rj5" userLabel="Mic">
                                                 <rect key="frame" x="0.0" y="0.0" width="61" height="44"/>
                                                 <accessibility key="accessibilityConfiguration" identifier="Toggle Mute" label="Mute"/>
                                                 <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <inset key="contentEdgeInsets" minX="5" minY="5" maxX="5" maxY="5"/>
                                                 <state key="normal" image="volume-0"/>
                                                 <state key="selected" image="volume-muted"/>
                                                 <connections>
                                                     <action selector="muteButtonClicked:" destination="ur0-O1-pag" eventType="touchUpInside" id="0aI-Xr-M0O"/>
                                                 </connections>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleAspectFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4mT-rM-aXK">
+                                            <button opaque="NO" contentMode="scaleAspectFill" contentHorizontalAlignment="fill" contentVerticalAlignment="fill" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4mT-rM-aXK">
                                                 <rect key="frame" x="69" y="0.0" width="61" height="44"/>
                                                 <accessibility key="accessibilityConfiguration" identifier="Toggle Speaker" label="Speaker"/>
+                                                <inset key="contentEdgeInsets" minX="5" minY="5" maxX="5" maxY="5"/>
                                                 <state key="normal" image="meeting-speaker"/>
                                                 <connections>
                                                     <action selector="deviceButtonClicked:" destination="ur0-O1-pag" eventType="touchUpInside" id="lba-hA-CYN"/>
                                                 </connections>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleAspectFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="urn-hi-Y25">
+                                            <button opaque="NO" contentMode="scaleAspectFill" contentHorizontalAlignment="fill" contentVerticalAlignment="fill" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="urn-hi-Y25">
                                                 <rect key="frame" x="138" y="0.0" width="61" height="44"/>
                                                 <accessibility key="accessibilityConfiguration" identifier="Toggle Camera" label="Camera"/>
                                                 <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <inset key="contentEdgeInsets" minX="5" minY="5" maxX="5" maxY="5"/>
                                                 <state key="normal" image="meeting-video"/>
                                                 <state key="selected" image="meeting-video-on"/>
                                                 <connections>
@@ -749,19 +752,21 @@
                                                 <rect key="frame" x="207" y="0.0" width="61" height="44"/>
                                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                             </view>
-                                            <button opaque="NO" contentMode="scaleAspectFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ief-dn-Lr8">
+                                            <button opaque="NO" contentMode="scaleAspectFill" contentHorizontalAlignment="fill" contentVerticalAlignment="fill" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ief-dn-Lr8">
                                                 <rect key="frame" x="276" y="0.0" width="61" height="44"/>
                                                 <accessibility key="accessibilityConfiguration" identifier="More" label="More"/>
                                                 <color key="tintColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                <inset key="contentEdgeInsets" minX="5" minY="5" maxX="5" maxY="5"/>
                                                 <state key="normal" image="more"/>
                                                 <state key="selected" image="meeting-video-on"/>
                                                 <connections>
                                                     <action selector="additionalOptionsButtonClicked:" destination="ur0-O1-pag" eventType="touchUpInside" id="GEN-CU-7ht"/>
                                                 </connections>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleAspectFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QpV-zh-bvd" userLabel="End">
+                                            <button opaque="NO" contentMode="scaleAspectFill" contentHorizontalAlignment="fill" contentVerticalAlignment="fill" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QpV-zh-bvd" userLabel="End">
                                                 <rect key="frame" x="345" y="0.0" width="61" height="44"/>
                                                 <accessibility key="accessibilityConfiguration" identifier="Leave Meeting" label="Leave meeting"/>
+                                                <inset key="contentEdgeInsets" minX="5" minY="5" maxX="5" maxY="5"/>
                                                 <state key="normal" image="meeting-end"/>
                                                 <connections>
                                                     <action selector="leaveButtonClicked:" destination="ur0-O1-pag" eventType="touchUpInside" id="Cx5-s8-LI7"/>
@@ -827,7 +832,7 @@
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="additionalOptionsButton" destination="Ief-dn-Lr8" id="3PU-5V-JQ7"/>
-                        <outlet property="broadcastPickerView" destination="45k-rb-bfn" id="DYh-zE-TBa"/>
+                        <outlet property="broadcastPickerContainerView" destination="45k-rb-bfn" id="DYh-zE-TBa"/>
                         <outlet property="cameraButton" destination="urn-hi-Y25" id="aXe-mE-gEa"/>
                         <outlet property="chatMessageTable" destination="SDw-oV-14H" id="sz1-YB-TBn"/>
                         <outlet property="chatView" destination="RGo-2N-w2S" id="z58-eq-wYt"/>
