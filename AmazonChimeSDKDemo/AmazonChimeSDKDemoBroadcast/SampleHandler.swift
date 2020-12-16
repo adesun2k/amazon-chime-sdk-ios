@@ -10,7 +10,7 @@
 import AmazonChimeSDK
 import ReplayKit
 
-let appGroupId = "group.com.amazonaws.services.chime.SDKDemo"
+let appGroupId = "YOUR_APP_GROUP_ID"
 
 let userDefaultsKeyMeetingId = "demoMeetingId"
 let userDefaultsKeyCredentials = "demoMeetingCredentials"
@@ -57,6 +57,7 @@ class SampleHandler: RPBroadcastSampleHandler {
 
     override func broadcastFinished() {
         // User has requested to finish the broadcast.
+        replayKitSource.stop()
         currentMeetingSession?.audioVideo.stopContentShare()
         observer?.invalidate()
     }
