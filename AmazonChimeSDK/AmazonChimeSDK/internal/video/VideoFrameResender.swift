@@ -24,13 +24,13 @@ import CoreMedia
     private var lastSendTimestamp: CMTime?
     private var lastVideoFrame: VideoFrame?
 
-    private let resendCallback: (VideoFrame) -> Void
+    private let resendFrameHandler: (VideoFrame) -> Void
 
     /// Callback will be triggered with a previous `VideoFrame` which will have different timestamp
     /// then originally sent with so it won't be dropped by downstream encoders
-    init(minFramerate: Int, callback: @escaping (VideoFrame) -> Void) {
+    init(minFramerate: Int, resendFrameHandler: @escaping (VideoFrame) -> Void) {
         self.minFramerate = minFramerate
-        self.resendCallback = callback
+        self.resendFrameHandler = resendFrameHandler
         self.resendTimeInterval = CMTime(value: CMTimeValue(Constants.millisecondsPerSecond / minFramerate),
                                       timescale: CMTimeScale(Constants.millisecondsPerSecond))
     }
@@ -42,7 +42,7 @@ import CoreMedia
 
     /// Calling this function will kick off a timer which will begin checking if frames need to be resent
     /// to maintain a minimum frame frame
-    func onFrameSent(videoFrame: VideoFrame) {
+    func frameDidSend(videoFrame: VideoFrame) {
         lastSendTimestamp = CMClockGetTime(CMClockGetHostTimeClock())
         lastVideoFrame = videoFrame
 
@@ -81,7 +81,7 @@ import CoreMedia
                 self.resendTimer?.cancel()
                 self.resendTimer = nil
 
-                self.resendCallback(newVideoFrame)
+                self.resendFrameHandler(newVideoFrame)
             } else {
                 // Reset resending schedule if there is an input frame between internals
                 let remainingSeconds = self.resendTimeInterval.seconds - delta.seconds

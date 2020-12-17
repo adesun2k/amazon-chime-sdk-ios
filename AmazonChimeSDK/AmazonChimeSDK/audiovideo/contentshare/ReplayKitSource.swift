@@ -72,6 +72,6 @@ import ReplayKit
             guard let sink = item as? VideoSink else { return }
             sink.onVideoFrameReceived(frame: frame)
         }
-        videoFrameResender.onFrameSent(videoFrame: frame)
+        videoFrameResender.frameDidSend(videoFrame: frame)
     }
 }
