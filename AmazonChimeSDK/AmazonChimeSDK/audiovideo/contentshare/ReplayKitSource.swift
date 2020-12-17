@@ -20,7 +20,6 @@ import ReplayKit
     public var videoContentHint: VideoContentHint = .detail
 
     private let logger: Logger
-    private let observers = ConcurrentMutableSet()
     private let sinks = ConcurrentMutableSet()
 
     private lazy var videoFrameResender = VideoFrameResender(minFramerate: 5) { [weak self] (frame) -> Void in
@@ -62,7 +61,7 @@ import ReplayKit
 
     private func processVideo(sampleBuffer: CMSampleBuffer) {
         guard let frame = VideoFrame(sampleBuffer: sampleBuffer) else {
-            logger.error(msg: "DefaultCameraCaptureSource Could not convert captured CMSampleBuffer to video frame")
+            logger.error(msg: "ReplayKitSource could not convert captured CMSampleBuffer to video frame")
             return
         }
         sendVideoFrame(frame: frame)

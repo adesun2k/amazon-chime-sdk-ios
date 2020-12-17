@@ -46,8 +46,8 @@ import CoreMedia
         lastSendTimestamp = CMClockGetTime(CMClockGetHostTimeClock())
         lastVideoFrame = videoFrame
 
-        if let source = resendTimer,
-            source.isCancelled == false {
+        if let resendTimer = resendTimer,
+           resendTimer.isCancelled == false {
             // There is already a timer running
             return
         }
